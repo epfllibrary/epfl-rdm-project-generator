@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EPFL · RDM Project Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="epfl-wordmark">EPFL</span>
+    <div class="topbar-sep"></div>
+    <span class="topbar-name">Research Data Management · Project Generator</span>
+  </div>
+  <div class="topbar-right">
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-btn" id="lang-fr" onclick="switchLang('fr')">FR</button>
+      <button class="lang-btn active" id="lang-en" onclick="switchLang('en')">EN</button>
+    </div>
+    <span id="top-step"></span>
+  </div>
+</header>
+
+<!-- ── LAYOUT ── -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-head">Configuration</div>
+    <nav>
+      <div class="nav-step active" data-step="0" onclick="navClick(0)">
+        <div class="step-num">1</div>
+        <div class="step-label"><strong data-i18n="nav.0.title">Projet</strong><span data-i18n="nav.0.hint">Infos, financeur</span></div>
+      </div>
+      <div class="nav-step pending" data-step="1" onclick="navClick(1)">
+        <div class="step-num">2</div>
+        <div class="step-label"><strong data-i18n="nav.1.title">Données & code</strong><span data-i18n="nav.1.hint">Types, nommage, sources</span></div>
+      </div>
+      <div class="nav-step pending" data-step="2" onclick="navClick(2)">
+        <div class="step-num">3</div>
+        <div class="step-label"><strong data-i18n="nav.2.title">Licences</strong><span data-i18n="nav.2.hint">Licences et compatibilité</span></div>
+      </div>
+      <div class="nav-step pending" data-step="3" onclick="navClick(3)">
+        <div class="step-num">↓</div>
+        <div class="step-label"><strong data-i18n="nav.3.title">Téléchargement</strong><span data-i18n="nav.3.hint">Aperçu & ZIP</span></div>
+      </div>
+    </nav>
+
+    <div class="sidebar-sep"></div>
+    <div class="progress-wrap">
+      <div class="progress-meta"><span>Progression</span><span id="prog-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+    </div>
+
+    <div class="sidebar-info">
+      <div class="sidebar-info-title" data-i18n="sidebar.support.title">Support EPFL RDM</div>
+      <p>
+        <span data-i18n="sidebar.support.body">Questions sur la gestion des données ?</span><br>
+        <a href="mailto:researchdata@epfl.ch">researchdata@epfl.ch</a><br>
+        <a href="https://go.epfl.ch/rdm" target="_blank" rel="noopener noreferrer">go.epfl.ch/rdm</a>
+      </p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══════════════════════════════════════════════════════════
+         ÉTAPE 1 — Projet & financement (infos + projet + financeur)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="step-panel active" id="step-0">
+      <div class="step-eyebrow" data-i18n="s0.eyebrow">Étape 1 sur 3</div>
+      <h1 class="step-title" data-i18n="s0.title">Projet & financement</h1>
+      <p class="step-desc" data-i18n="s0.desc">Ces informations seront intégrées dans le README et tous les templates du projet.</p>
+
+      <div class="card">
+        <div class="card-label" data-i18n="s1.id">Identification du projet</div>
+        <div class="field-hint" data-i18n-html="s1.name.hint.full">Sans espaces...</div>
+        <div class="field-row cols-3">
+          <div class="field">
+            <label class="field-label" for="proj-name"><span data-i18n="s1.name">Nom du projet</span> <span class="req">*</span></label>
+            <input type="text" id="proj-name" placeholder="nom_projet" data-i18n-ph="s1.name.ph" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label class="field-label" for="proj-unit"><span data-i18n="s1.unit">Unité</span> <span class="req">*</span></label>
+            <input type="text" id="proj-unit" placeholder="E.g. LSMS, LCAV..." data-i18n-ph="s1.unit.ph"/>
+          </div>
+          <div class="field">
+            <label class="field-label" for="proj-grant" data-i18n="s1.grant">Grant</label>
+            <input type="text" id="proj-grant" placeholder="200021_212344" data-i18n-ph="s1.grant.ph"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collaborateurs -->
+      <div class="card">
+        <div class="card-label" data-i18n="collaborators.title">Collaborateurs</div>
+        <p style="font-size:12px;color:var(--ink-4);margin-bottom:1rem" data-i18n="collaborators.desc">Ajoutez les personnes impliquées dans le projet.</p>
+        <div style="overflow-x:auto">
+          <table class="data-table" id="contributors-table">
+            <thead>
+              <tr>
+                <th style="min-width:120px" data-i18n="collaborators.last">Nom</th>
+                <th style="min-width:120px" data-i18n="collaborators.first">Prénom</th>
+                <th style="min-width:160px" data-i18n="collaborators.email">Email</th>
+                <th style="min-width:140px">ORCID <span class="help-icon" data-i18n-tip="tip.orcid">?</span></th>
+                <th style="min-width:150px" data-i18n="collaborators.role">Rôle</th>
+                <th style="width:30px"></th>
+              </tr>
+            </thead>
+            <tbody id="contributors-body">
+            </tbody>
+          </table>
+        </div>
+        <button class="btn-small" style="margin-top:8px;background:var(--ink);color:#fff" onclick="_rdm.addContributorRow()" data-i18n="collaborators.add">+ Ajouter un collaborateur</button>
+      </div>
+
+      <!-- README enriched fields -->
+      <div class="card">
+        <div class="card-label" data-i18n="s1.desc.l">Description du projet</div>
+        <div class="field">
+          <label class="field-label"><span data-i18n="s1.desc.l">Description du projet</span></label>
+          <textarea id="proj-desc" rows="3" placeholder="Describe the scientific objective in 2-3 sentences…" data-i18n-ph="s1.desc.ph"></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label" data-i18n="s1.method.l">Méthodologie (optionnel)</label>
+          <textarea id="proj-method" rows="3" placeholder="Experimental approach, protocol, tools used…" data-i18n-ph="s1.method.ph"></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label" data-i18n="s1.keywords.l">Mots-clés</label>
+          <input type="text" id="proj-keywords" placeholder="keyword1, keyword2, keyword3" data-i18n-ph="s1.keywords.ph"/>
+        </div>
+      </div>
+
+      <!-- Options (compact) -->
+      <div class="card">
+        <div class="card-label" data-i18n="options.title">Options du projet</div>
+        <div class="options-row">
+          <label class="cb-row" style="margin-bottom:0">
+            <input type="checkbox" id="cb-multisite"/>
+            <div class="cb-label"><strong data-i18n="options.multisite">Multi-site</strong></div>
+          </label>
+          <label class="cb-row" style="margin-bottom:0">
+            <input type="checkbox" id="cb-humandata"/>
+            <div class="cb-label"><strong data-i18n="options.humandata">Données humaines</strong></div>
+          </label>
+          <label class="cb-row" style="margin-bottom:0">
+            <input type="checkbox" id="cb-multiteam"/>
+            <div class="cb-label"><strong data-i18n="options.multiteam">Multi-acteurs</strong></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Financeur -->
+      <div class="card">
+        <div class="card-label" data-i18n="s4.funding">Source de financement</div>
+        <div class="funder-grid" id="funder-radios">
+          <div class="funder-card" data-v="SNSF">
+            <span class="funder-name">SNSF / FNS</span>
+            <span class="funder-hint" data-i18n="s4.snsf.hint">Fonds national suisse</span>
+            <span class="funder-badge" data-i18n="s4.snsf.badge">Open Research Data</span>
+          </div>
+          <div class="funder-card" data-v="HorizonEU">
+            <span class="funder-name">Horizon Europe</span>
+            <span class="funder-hint" data-i18n="s4.heu.hint">Programme-cadre EU</span>
+            <span class="funder-badge" data-i18n="s4.heu.badge">FAIR + Open by default</span>
+          </div>
+          <div class="funder-card" data-v="ERC">
+            <span class="funder-name">ERC</span>
+            <span class="funder-hint" data-i18n="s4.erc.hint">European Research Council</span>
+            <span class="funder-badge" data-i18n="s4.erc.badge">Open access obligatoire</span>
+          </div>
+          <div class="funder-card" data-v="NIH">
+            <span class="funder-name">NIH</span>
+            <span class="funder-hint" data-i18n="s4.nih.hint">National Institutes of Health</span>
+            <span class="funder-badge" data-i18n="s4.nih.badge">DMSP depuis 2023</span>
+          </div>
+          <div class="funder-card" data-v="Other">
+            <span class="funder-name" data-i18n="s4.other.name">Autre / Interne EPFL</span>
+            <span class="funder-hint" data-i18n="s4.other.hint">Financement interne, industrie, fondation</span>
+            <span class="funder-badge" data-i18n="s4.other.badge">Template générique</span>
+          </div>
+        </div>
+        <div id="funder-info"></div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-next" onclick="nextStep()"><span data-i18n="btn.next">Étape suivante</span>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
+        </button>
+      </div>
+    </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+          ÉTAPE 2 — Données & code
+     ══════════════════════════════════════════════════════════ -->
+    <div class="step-panel" id="step-1">
+      <div class="step-eyebrow" data-i18n="s1.eyebrow">Étape 2 sur 3</div>
+      <h1 class="step-title" data-i18n="s1.title">Données & code</h1>
+      <p class="step-desc" data-i18n="s1.desc">Décrivez vos données, choisissez une convention de nommage et les sources réutilisées.</p>
+
+      <!-- ── Tableau des données ── -->
+      <div class="card">
+        <div class="card-label" data-i18n="data_table.title">Données du projet</div>
+        <p style="font-size:12px;color:var(--ink-4);margin-bottom:1rem" data-i18n="data_table.desc">Listez les données collectées ou générées.</p>
+        <div style="overflow-x:auto">
+          <table class="data-table" id="data-table">
+            <thead>
+              <tr>
+                <th style="min-width:140px" data-i18n="data_table.id">Identifiant</th>
+                <th style="min-width:160px" data-i18n="data_table.type">Type</th>
+                <th style="min-width:120px" data-i18n="data_table.format">Format</th>
+                <th style="min-width:100px" data-i18n="data_table.volume">Volume</th>
+                <th style="min-width:60px;text-align:center">Sensible <span class="help-icon" data-i18n-tip="tip.sensitive">?</span></th>
+                <th style="min-width:60px;text-align:center">Personnel <span class="help-icon" data-i18n-tip="tip.personal">?</span></th>
+                <th style="min-width:80px">Origine</th>
+                <th style="width:30px"></th>
+              </tr>
+            </thead>
+            <tbody id="data-table-body">
+              <!-- Rows added dynamically via addDataRow() -->
+            </tbody>
+          </table>
+        </div>
+        <datalist id="datalist-types">
+          <option value="Tabulaire / CSV"><option value="Images / Microscopie"><option value="Vidéo / Time-lapse">
+          <option value="Audio / Signal"><option value="Texte / Corpus"><option value="Génomique / NGS">
+          <option value="Enquêtes / Questionnaires"><option value="3D / Point cloud / Mesh">
+          <option value="Spatial / GIS"><option value="Sorties de simulation"><option value="Données massives (&gt; 1 TB)">
+        </datalist>
+        <button class="btn-small" style="margin-top:8px;background:var(--ink);color:#fff" onclick="_rdm.addDataRow()">+ Ajouter une donnée</button>
+      </div>
+
+      <!-- ── Tableau du code ── -->
+      <div class="card">
+        <div class="card-label" data-i18n="code_table.title">Code / Logiciel</div>
+        <p style="font-size:12px;color:var(--ink-4);margin-bottom:1rem">Listez les logiciels, scripts ou notebooks développés pour ce projet.</p>
+        <div style="overflow-x:auto">
+          <table class="data-table" id="code-table">
+            <thead>
+              <tr>
+                <th style="min-width:140px" data-i18n="code_table.id">Identifiant</th>
+                <th style="min-width:120px" data-i18n="code_table.lang">Langage</th>
+                <th style="min-width:140px" data-i18n="code_table.repo">Entrepôt</th>
+                <th style="min-width:80px">Origine</th>
+                <th style="width:30px"></th>
+              </tr>
+            </thead>
+            <tbody id="code-table-body">
+              <!-- Rows added dynamically via addCodeRow() -->
+            </tbody>
+          </table>
+        </div>
+        <datalist id="datalist-langs">
+          <option value="Python 3"><option value="R"><option value="MATLAB"><option value="Julia">
+          <option value="C++"><option value="JavaScript"><option value="TypeScript">
+          <option value="Java"><option value="Go"><option value="Rust"><option value="Shell">
+        </datalist>
+        <button class="btn-small" style="margin-top:8px;background:var(--ink);color:#fff" onclick="_rdm.addCodeRow()" data-i18n="code_table.add">+ Ajouter un logiciel</button>
+        <div id="code-options" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)">
+          <label class="cb-row" style="margin-bottom:0">
+            <input type="checkbox" id="cb-notebook"/>
+            <div class="cb-label"><strong data-i18n="code.notebook">Générer un notebook Jupyter</strong><span data-i18n="code.notebook.desc">Notebook d'exploration avec pandas, numpy, matplotlib, scikit-learn, PyTorch</span></div>
+          </label>
+          <label class="cb-row" style="margin-bottom:0;margin-top:6px">
+            <input type="checkbox" id="cb-gitignore"/>
+            <div class="cb-label"><strong data-i18n="code.gitignore">Inclure un .gitignore adapté</strong><span data-i18n="code.gitignore.desc">Pour projet Jupyter / ML — exclut données, caches, environnements</span></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- ── Convention de nommage ── -->
+      <div class="card">
+        <div class="card-label" data-i18n="naming.title">Convention de nommage</div>
+        <p style="font-size:12px;color:var(--ink-4);margin-bottom:1rem" data-i18n="naming.desc">Choisissez le format général. La variable <code style="font-size:11px">{type}</code> est remplacée par l'identifiant de chaque ligne.</p>
+        <div class="radio-grid cols-2" id="naming-radios">
+          <div class="radio-card on" data-v="rdm">
+            <div class="radio-dot"></div>
+            <div><span class="rc-title" data-i18n="naming.preset.rdm">Standard</span><span class="rc-desc" style="font-family:monospace;font-size:11px">project_type_date_v{version}.ext</span></div>
+          </div>
+          <div class="radio-card" data-v="date_first">
+            <div class="radio-dot"></div>
+            <div><span class="rc-title" data-i18n="naming.preset.date">Tri chronologique</span><span class="rc-desc" style="font-family:monospace;font-size:11px">date_project_type_v{version}.ext</span></div>
+          </div>
+          <div class="radio-card" data-v="type_first">
+            <div class="radio-dot"></div>
+            <div><span class="rc-title" data-i18n="naming.preset.type">Par catégorie</span><span class="rc-desc" style="font-family:monospace;font-size:11px">type_project_version_date.ext</span></div>
+          </div>
+          <div class="radio-card" data-v="hyphen">
+            <div class="radio-dot"></div>
+            <div><span class="rc-title" data-i18n="naming.preset.hyphen">Project-type</span><span class="rc-desc" style="font-family:monospace;font-size:11px">project-type-v{version}-date.ext</span></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:8px 12px;background:var(--bg);border-radius:var(--r-lg);font-size:12px;color:var(--ink-3)">
+          <span data-i18n="naming.preview">Aperçu</span> : <code id="naming-preview-example" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--teal)">projet_tabular_data_20260708_v01.csv</code>
+        </div>
+      </div>
+
+      <!-- ── Sources réutilisées ── -->
+      <div class="card" id="reused-section" style="display:none">
+        <div class="card-label" data-i18n="reused.title">Sources réutilisées</div>
+        <p style="font-size:12px;color:var(--ink-4);margin-bottom:1rem" data-i18n="reused.desc">Sources marquées comme réutilisées dans les tableaux ci-dessus.</p>
+        <div style="overflow-x:auto">
+          <table class="data-table reused-table" id="reused-table">
+            <thead>
+              <tr>
+                <th style="min-width:60px" data-i18n="reused.id">Identifiant</th>
+                <th style="min-width:90px" data-i18n="reused.doi">DOI</th>
+                <th style="min-width:120px" data-i18n="reused.link">Lien</th>
+                <th style="min-width:130px" data-i18n="reused.license">Licence source</th>
+                <th data-i18n="reused.citation">Citation</th>
+                <th style="width:30px"></th>
+              </tr>
+            </thead>
+            <tbody id="reused-table-body"></tbody>
+          </table>
+        </div>
+        <div id="reused-empty" style="padding:12px;text-align:center;font-size:13px;color:var(--ink-4)" data-i18n="reused.empty">Aucune source réutilisée. Marquez une ligne comme « Réutilisé » dans les tableaux ci-dessus.</div>
+        <button class="btn-small" style="margin-top:8px;background:var(--ink);color:#fff" onclick="_rdm.addManualSource()" data-i18n="reused.manual">+ Ajouter une source manuelle</button>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-back" onclick="prevStep()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> <span data-i18n="btn.prev">Étape précédente</span></button>
+        <button class="btn btn-next" onclick="nextStep()"><span data-i18n="btn.next">Étape suivante</span>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3l5 5-5 5"/></svg>
+        </button>
+      </div>
+    </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+          ÉTAPE 3 — Licences
+     ══════════════════════════════════════════════════════════ -->
+    <div class="step-panel" id="step-2">
+      <div class="step-eyebrow" data-i18n="s2.eyebrow">Étape 3 sur 3</div>
+      <h1 class="step-title" data-i18n="s2.title">Licences</h1>
+      <p class="step-desc" data-i18n="s2.desc">Choisissez les licences pour vos données et votre code.</p>
+
+      <!-- Licence des données -->
+      <div class="card" id="data-license-section" style="display:none">
+        <div class="card-label" data-i18n="s4.lic.data">Licence des données</div>
+        <select id="data-license" style="width:100%;margin-bottom:10px">
+          <optgroup label="Domaine public">
+            <option value="CC0-1.0">CC0 1.0 — Domaine public (aucune restriction)</option>
+          </optgroup>
+          <optgroup label="Creative Commons — Attribution">
+            <option value="CC-BY-4.0" selected>CC BY 4.0 — Attribution (recommandé)</option>
+            <option value="CC-BY-SA-4.0">CC BY-SA 4.0 — Attribution + partage à l'identique</option>
+            <option value="CC-BY-ND-4.0">CC BY-ND 4.0 — Attribution + pas de modification</option>
+            <option value="CC-BY-NC-4.0">CC BY-NC 4.0 — Attribution + non commercial</option>
+            <option value="CC-BY-NC-SA-4.0">CC BY-NC-SA 4.0 — Attribution + non commercial + partage à l'identique</option>
+            <option value="CC-BY-NC-ND-4.0">CC BY-NC-ND 4.0 — Attribution + non commercial + pas de modification</option>
+          </optgroup>
+          <optgroup label="Accès restreint">
+            <option value="restricted">Accès restreint / propriétaire</option>
+          </optgroup>
+        </select>
+        <div class="license-compat-warning" id="compat-warn-data" style="display:none"></div>
+        <details class="license-quiz" id="quiz-data" style="margin-top:10px">
+          <summary style="cursor:pointer;font-size:12px;color:var(--teal)" data-i18n="lic.quiz.data">Assistant — Licence des données</summary>
+          <div style="margin-top:10px;padding:12px;background:var(--bg);border-radius:var(--r-lg)">
+            <div style="font-size:11px;font-weight:500;margin-bottom:6px" data-i18n="lic.quiz.q1">Usage commercial autorisé ?</div>
+            <div class="toggle-row" id="quiz-data-q1">
+              <div class="toggle-btn" data-v="yes" data-i18n="lic.quiz.q1.yes">Oui</div>
+              <div class="toggle-btn" data-v="no" data-i18n="lic.quiz.q1.no">Non</div>
+              <div class="toggle-btn on" data-v="any" data-i18n="lic.quiz.q1.any">Peu importe</div>
+            </div>
+            <div style="font-size:11px;font-weight:500;margin:8px 0 6px" data-i18n="lic.quiz.q2">Modifications autorisées ?</div>
+            <div class="toggle-row" id="quiz-data-q2">
+              <div class="toggle-btn on" data-v="yes" data-i18n="lic.quiz.q2.yes">Oui, sans conditions</div>
+              <div class="toggle-btn" data-v="sa" data-i18n="lic.quiz.q2.sa">Oui, à partager à l'identique</div>
+              <div class="toggle-btn" data-v="no" data-i18n="lic.quiz.q2.no">Non</div>
+            </div>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px" data-i18n="lic.quiz.reco">Licence recommandée :</span>
+              <span id="quiz-data-reco" style="font-size:12px;font-weight:600;color:var(--teal)">CC BY 4.0</span>
+              <button class="btn-small" onclick="_rdm.applyQuizData()" style="margin-left:auto" data-i18n="lic.quiz.apply">Appliquer</button>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Licence du code -->
+      <div class="card" id="code-license-section" style="display:none">
+        <div class="card-label" data-i18n="s4.lic.code">Licence du code</div>
+        <select id="code-license" style="width:100%;margin-bottom:10px">
+          <option value="MIT">MIT (permissive)</option>
+          <option value="Apache-2.0">Apache 2.0</option>
+          <option value="GPL-3.0">GPL v3 (copyleft)</option>
+          <option value="BSD-3-Clause">BSD 3-Clause</option>
+          <option value="none">Propriétaire / non défini</option>
+        </select>
+        <div class="license-compat-warning" id="compat-warn-code" style="display:none"></div>
+        <details class="license-quiz" id="quiz-code" style="margin-top:10px">
+          <summary style="cursor:pointer;font-size:12px;color:var(--teal)" data-i18n="lic.quiz.code">Assistant — Licence du code</summary>
+          <div style="margin-top:10px;padding:12px;background:var(--bg);border-radius:var(--r-lg)">
+            <div style="font-size:11px;font-weight:500;margin-bottom:6px" data-i18n="lic.quiz.code.q1">Ouverture du code ?</div>
+            <div class="toggle-row" id="quiz-code-q1">
+              <div class="toggle-btn on" data-v="os" data-i18n="lic.quiz.code.q1.os">Open source</div>
+              <div class="toggle-btn" data-v="closed" data-i18n="lic.quiz.code.q1.cl">Interne seulement</div>
+            </div>
+            <div id="quiz-code-followup" style="display:block">
+              <div style="font-size:11px;font-weight:500;margin:8px 0 6px" data-i18n="lic.quiz.code.q2">Style de licence ?</div>
+              <div class="toggle-row" id="quiz-code-q2">
+                <div class="toggle-btn" data-v="copyleft" data-i18n="lic.quiz.code.q2.copyleft">Copyleft (GPL)</div>
+                <div class="toggle-btn on" data-v="perm" data-i18n="lic.quiz.code.q2.perm">Permissif (MIT/Apache)</div>
+              </div>
+              <div id="quiz-code-patents" style="display:block">
+                <div style="font-size:11px;font-weight:500;margin:8px 0 6px" data-i18n="lic.quiz.code.q3">Protection des brevets nécessaire ?</div>
+                <div class="toggle-row" id="quiz-code-q3">
+                  <div class="toggle-btn" data-v="yes" data-i18n="lic.quiz.code.q3.yes">Oui</div>
+                  <div class="toggle-btn on" data-v="no" data-i18n="lic.quiz.code.q3.no">Non</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px" data-i18n="lic.quiz.reco">Licence recommandée :</span>
+              <span id="quiz-code-reco" style="font-size:12px;font-weight:600;color:var(--teal)">MIT</span>
+              <button class="btn-small" onclick="_rdm.applyQuizCode()" style="margin-left:auto" data-i18n="lic.quiz.apply">Appliquer</button>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Sources réutilisées — tableau récapitulatif -->
+      <div class="card" id="reused-summary-section">
+        <div class="card-label">Sources réutilisées</div>
+        <div id="reused-summary-empty" style="font-size:13px;color:var(--ink-4)">Aucune source réutilisée.</div>
+        <div id="reused-summary-table-wrap" style="overflow-x:auto;display:none">
+          <table class="data-table" id="reused-summary-table">
+            <thead>
+              <tr>
+                <th style="min-width:80px">Dataset</th>
+                <th style="min-width:120px">Licence source</th>
+                <th style="min-width:100px">Compatibilité</th>
+              </tr>
+            </thead>
+            <tbody id="reused-summary-body"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--ink-4)">← Modifier les sources dans l'étape précédente</div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-back" onclick="prevStep()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> <span data-i18n="btn.prev">Étape précédente</span></button>
+        <button class="btn btn-generate" onclick="buildResult()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1a9 9 0 110 18A9 9 0 0110 1zm0 2a7 7 0 100 14A7 7 0 0010 3zm-.5 4h1v4.5l3.2 1.9-.5.85L9.5 12V7z"/></svg>
+          <span data-i18n="btn.generate">Générer mon projet</span>
+        </button>
+      </div>
+    </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+         ÉTAPE 4 — Résultat
+     ══════════════════════════════════════════════════════════ -->
+    <div class="step-panel" id="step-3">
+      <div class="result-header">
+        <div class="step-eyebrow" data-i18n="s6.eyebrow">Votre projet RDM</div>
+        <h1 class="result-title" data-i18n="s6.title">Aperçu & téléchargement</h1>
+        <p class="result-desc" data-i18n="s6.desc">Vérifiez la configuration, consultez les aperçus, puis téléchargez votre package complet.</p>
+      </div>
+
+      <!-- Summary grid -->
+      <div class="summary-grid" id="summary-grid"></div>
+
+
+
+      <!-- Tabs -->
+      <div class="card" style="padding:0; overflow:hidden; margin-top:1.25rem">
+        <div class="tab-bar" role="tablist">
+          <div class="tab on" onclick="showTab(0)" data-i18n="s6.tab.tree" role="tab">Arborescence</div>
+          <div class="tab" onclick="showTab(1)" data-i18n="s6.tab.naming" role="tab">Nomenclature</div>
+          <div class="tab" onclick="showTab(2)" data-i18n="s6.tab.readme" role="tab">README</div>
+          <div class="tab" onclick="showTab(3)" data-i18n="s6.tab.res" role="tab">Ressources incluses</div>
+        </div>
+        <div class="tab-content" style="padding:1.25rem 1.5rem">
+          <div class="tab-panel on" id="tp-0" role="tabpanel">
+            <div class="tree-wrap" id="tree-preview-container">
+              <div id="tree-preview"></div>
+            </div>
+          </div>
+          <div class="tab-panel" id="tp-1" role="tabpanel">
+            <div class="copy-row"><button class="copy-btn" onclick="copyEl('naming-preview', this)">Copier</button></div>
+            <div class="code-wrap" id="naming-preview"></div>
+          </div>
+          <div class="tab-panel" id="tp-2" role="tabpanel">
+            <div class="copy-row"><button class="copy-btn" onclick="copyEl('readme-preview', this)">Copier</button></div>
+            <div class="code-wrap" id="readme-preview"></div>
+          </div>
+          <div class="tab-panel" id="tp-3" role="tabpanel">
+            <div id="resources-preview"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Download area -->
+      <div class="dl-area" style="margin-top:1.25rem">
+        <div class="dl-title" data-i18n="s6.dl.title">Package RDM complet</div>
+        <div class="dl-desc" id="dl-desc" data-i18n="s6.dl.desc">Votre package contient la structure complète, tous les templates adaptés à votre configuration et les ressources EPFL.</div>
+        <button class="btn-download" id="dl-btn" data-i18n="btn.download" onclick="triggerDownload()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+          Télécharger le projet (.zip)
+        </button>
+        <div class="progress-dl" id="progress-dl">
+          <div class="progress-dl-track"><div class="progress-dl-fill" id="dl-fill"></div></div>
+          <div class="progress-dl-label" id="dl-label" data-i18n="s6.dl.prep">Préparation…</div>
+        </div>
+        <div class="dl-meta" id="dl-meta"></div>
+      </div>
+
+      <div class="nav-row" style="margin-top:1.5rem">
+        <button class="btn btn-back" onclick="prevStep()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg> <span data-i18n="btn.modify">Modifier</span></button>
+        <button class="btn btn-back" onclick="startNew()" data-i18n="btn.new">Nouveau projet</button>
+      </div>
+    </div>
+
+    <!-- step-4 and step-5 removed (no longer used — now 4 steps: 0-3) -->
+
+  </main>
+</div>
+
+<!-- Loading overlay -->
+<script>
+// Stubs synchrones — remplacés par le module ES dès son chargement
+// Nécessaire car les onclick="" inline ne peuvent pas voir le scope d'un module ES
+var _rdm = {};
+function nextStep()       { _rdm.nextStep      ? _rdm.nextStep()       : console.warn('module not ready'); }
+function prevStep()       { _rdm.prevStep      ? _rdm.prevStep()       : console.warn('module not ready'); }
+function goToStep(n)      { _rdm.goToStep      ? _rdm.goToStep(n)      : console.warn('module not ready'); }
+function navClick(i)      { _rdm.navClick      ? _rdm.navClick(i)      : console.warn('module not ready'); }
+function showTab(n)       { _rdm.showTab       ? _rdm.showTab(n)       : console.warn('module not ready'); }
+function copyEl(id)       { _rdm.copyEl        ? _rdm.copyEl(id)       : console.warn('module not ready'); }
+function buildResult()    { _rdm.buildResult   ? _rdm.buildResult()    : console.warn('module not ready'); }
+function triggerDownload(){ _rdm.triggerDownload ? _rdm.triggerDownload() : console.warn('module not ready'); }
+function startNew()       { _rdm.startNew      ? _rdm.startNew()       : console.warn('module not ready'); }
+function switchLang(lang)  { _rdm.switchLang    ? _rdm.switchLang(lang)  : console.warn('module not ready'); }
+</script>
+<script type="module">
+// ── Import avec gestion d'erreur explicite ────────────────────────────────
+let STATE, getStep, goToStep, nextStep, prevStep,
+    bindInput, bindChip, bindToggle, bindRadio, bindCheckbox, bindSelect,
+    assembleAndDownload, buildTreePreview, buildSummary, getDefaultFolders, T, evaluateState,
+    t, getLang, setLang, applyLang,
+    makeKeyboardAccessible;
+
+try {
+  const v = "?v=2.0.1";
+  const appMod   = await import("./app.js" + v);
+  const tplMod   = await import("./templates.js" + v);
+  const rulesMod = await import("./rules.js" + v);
+  const i18nMod  = await import("./i18n.js" + v);
+
+  STATE = appMod.STATE;
+  getStep = appMod.getStep; goToStep = appMod.goToStep;
+  nextStep = appMod.nextStep; prevStep = appMod.prevStep;
+  bindInput = appMod.bindInput; bindChip = appMod.bindChip;
+  bindToggle = appMod.bindToggle; bindRadio = appMod.bindRadio;
+  bindCheckbox = appMod.bindCheckbox; bindSelect = appMod.bindSelect;
+  assembleAndDownload = appMod.assembleAndDownload;
+  buildTreePreview = appMod.buildTreePreview;
+  buildSummary = appMod.buildSummary;
+  getDefaultFolders = appMod.getDefaultFolders;
+  makeKeyboardAccessible = appMod.makeKeyboardAccessible;
+  T = tplMod;
+  evaluateState = rulesMod.evaluateState;
+  // i18n
+  ({ t, getLang, setLang, applyLang } = i18nMod);
+  window._rdm.t = t;
+  // Initialiser la langue au démarrage
+  applyLang();
+  document.getElementById("lang-fr").classList.toggle("active", getLang() === "fr");
+  document.getElementById("lang-en").classList.toggle("active", getLang() === "en");
+} catch(err) {
+  console.error("[RDM] Erreur au chargement des modules:", err);
+  document.body.insertAdjacentHTML("afterbegin",
+    `<div style="background:#FEF0F0;border-bottom:2px solid #E1001A;padding:12px 2rem;font-size:13px;color:#A80013">
+      <strong>Erreur de chargement :</strong> ${err.message} — Vérifiez la console et que vous utilisez un serveur HTTP (pas file://).
+    </div>`);
+  throw err;
+}
+
+// ── Helper: échapper HTML pour prévenir XSS ────────────────────────────────
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
+// ── Connecter les stubs globaux ────────────────────────────────────────────
+_rdm.nextStep      = () => { if (validate()) { nextStep(); _maxStep = Math.max(_maxStep, getStep()); updateSidebarMax(); updateDynamicTexts(); } };
+_rdm.prevStep      = () => { prevStep(); updateSidebarMax(); updateDynamicTexts(); };
+_rdm.goToStep      = (n) => goToStep(n);
+_rdm.navClick      = (i) => { if (i <= _maxStep) { goToStep(i); updateSidebarMax(); updateDynamicTexts(); } };
+_rdm.showTab       = showTab;
+_rdm.copyEl        = copyEl;
+_rdm.buildResult   = () => { if (validate()) buildResult(); };
+_rdm.triggerDownload = triggerDownload;
+_rdm.startNew      = startNew;
+_rdm.switchLang  = switchLang;
+_rdm.applyQuizData = applyQuizData;
+_rdm.applyQuizCode = applyQuizCode;
+function switchLang(lang) {
+  setLang(lang);
+  applyLang();
+  updateDynamicTexts();
+  document.getElementById("lang-fr").classList.toggle("active", lang === "fr");
+  document.getElementById("lang-en").classList.toggle("active", lang === "en");
+}
+
+
+// ── maxStep : étape la plus haute atteinte (pour la sidebar) ──────────────
+let _maxStep = 0;
+
+function updateSidebarMax() {
+  const cur = getStep();
+  document.querySelectorAll(".nav-step").forEach((el, i) => {
+    el.classList.toggle("done",    i < cur || (i <= _maxStep && i !== cur));
+    el.classList.toggle("active",  i === cur);
+    el.classList.toggle("pending", i > _maxStep && i !== cur);
+  });
+}
+
+// ── Binding formulaire ─────────────────────────────────────────────────────
+bindInput("proj-name", "projectName");
+bindInput("proj-unit", "unit");
+bindInput("proj-desc", "projectDescription");
+bindInput("proj-method", "methodology");
+bindInput("proj-keywords", "keywords");
+bindInput("proj-grant", "grantNumber");
+bindRadio("naming-radios", "namingPattern");
+
+// Options checkboxes
+bindCheckbox("cb-multisite", "multisite");
+bindCheckbox("cb-humandata", "humanData");
+bindCheckbox("cb-multiteam", "multiTeam");
+bindSelect("data-license", "dataLicense");
+bindSelect("code-license", "codeLicense");
+document.getElementById("data-license").addEventListener("change", () => { updateLicenseWarnings(); });
+document.getElementById("code-license").addEventListener("change", () => { updateLicenseWarnings(); });
+bindRadio("funder-radios", "funder");
+bindCheckbox("cb-notebook", "generateNotebook");
+bindCheckbox("cb-gitignore", "generateGitignore");
+
+// ── Accessibilité clavier pour les composants custom ──────────────────────
+makeKeyboardAccessible("funder-radios");
+
+// ── License quiz logic ────────────────────────────────────────────────────────
+// Data license mapping
+const DATA_LICENSE_MAP = {
+  'yes_yes': 'CC-BY-4.0',
+  'yes_sa':  'CC-BY-SA-4.0',
+  'yes_no':  'CC-BY-ND-4.0',
+  'no_yes':  'CC-BY-NC-4.0',
+  'no_sa':   'CC-BY-NC-SA-4.0',
+  'no_no':   'CC-BY-NC-ND-4.0',
+};
+
+function updateQuizDataReco() {
+  const q1 = document.querySelector("#quiz-data-q1 .on")?.dataset?.v || 'any';
+  const q2 = document.querySelector("#quiz-data-q2 .on")?.dataset?.v || 'yes';
+  let license = 'CC0-1.0';
+  if (q1 !== 'any') {
+    license = DATA_LICENSE_MAP[`${q1}_${q2}`] || 'CC-BY-4.0';
+  }
+  document.getElementById('quiz-data-reco').textContent = license;
+}
+
+// Bind quiz-data toggles
+document.querySelectorAll("#quiz-data-q1 [data-v], #quiz-data-q2 [data-v]").forEach(el => {
+  el.addEventListener("click", () => {
+    const parent = el.parentElement;
+    parent.querySelectorAll("[data-v]").forEach(b => b.classList.remove("on"));
+    el.classList.add("on");
+    updateQuizDataReco();
+  });
+});
+
+function applyQuizData() {
+  const reco = document.getElementById('quiz-data-reco').textContent;
+  const sel = document.getElementById('data-license');
+  sel.value = reco;
+  sel.dispatchEvent(new Event('change'));
+}
+
+// Code license mapping
+function updateQuizCodeReco() {
+  const q1 = document.querySelector("#quiz-code-q1 .on")?.dataset?.v || 'os';
+  const patents = document.getElementById('quiz-code-patents');
+  const q2el = document.getElementById('quiz-code-q2');
+  const q3el = document.getElementById('quiz-code-q3');
+
+  // Show/hide follow-ups
+  if (q1 === 'closed') {
+    document.getElementById('quiz-code-followup').style.display = 'none';
+    document.getElementById('quiz-code-reco').textContent = 'none';
+    return;
+  } else {
+    document.getElementById('quiz-code-followup').style.display = 'block';
+  }
+
+  const q2 = document.querySelector("#quiz-code-q2 .on")?.dataset?.v || 'perm';
+  if (q2 === 'copyleft') {
+    patents.style.display = 'none';
+    document.getElementById('quiz-code-reco').textContent = 'GPL-3.0';
+  } else {
+    patents.style.display = 'block';
+    const q3 = document.querySelector("#quiz-code-q3 .on")?.dataset?.v || 'no';
+    document.getElementById('quiz-code-reco').textContent = q3 === 'yes' ? 'Apache-2.0' : 'MIT';
+  }
+}
+
+// Bind quiz-code toggles
+document.querySelectorAll("#quiz-code-q1 [data-v], #quiz-code-q2 [data-v], #quiz-code-q3 [data-v]").forEach(el => {
+  el.addEventListener("click", () => {
+    const parent = el.parentElement;
+    parent.querySelectorAll("[data-v]").forEach(b => b.classList.remove("on"));
+    el.classList.add("on");
+    updateQuizCodeReco();
+  });
+});
+
+function applyQuizCode() {
+  const reco = document.getElementById('quiz-code-reco').textContent;
+  const sel = document.getElementById('code-license');
+  sel.value = reco;
+  sel.dispatchEvent(new Event('change'));
+}
+
+// Initialise les recommandations
+updateQuizDataReco();
+updateQuizCodeReco();
+// Initialiser les warnings de compatibilité
+setTimeout(updateLicenseWarnings, 100);
+// Initialiser l'arborescence personnalisable
+setTimeout(renderFolderTree, 150);
+
+// ── Help tooltips ──────────────────────────────────────────────────────────
+document.querySelectorAll(".help-icon").forEach(el => {
+  const tip = document.getElementById("help-tip");
+  el.addEventListener("mouseenter", (e) => {
+    tip.textContent = el.getAttribute("data-tip");
+    tip.classList.add("show");
+    const rect = el.getBoundingClientRect();
+    let top = rect.top - tip.offsetHeight - 8;
+    let left = rect.left + rect.width / 2 - tip.offsetWidth / 2;
+    if (top < 4) top = rect.bottom + 8; // fallback en dessous si pas de place
+    if (left < 4) left = 4;
+    if (left + tip.offsetWidth > window.innerWidth - 4) left = window.innerWidth - tip.offsetWidth - 4;
+    tip.style.top = top + "px";
+    tip.style.left = left + "px";
+  });
+  el.addEventListener("mouseleave", () => { tip.classList.remove("show"); });
+});
+
+// ── Naming convention preview ──────────────────────────────────────────────
+function updateNamingPreview() {
+  const ex = T.generateNamingExamples(STATE);
+  const el = document.getElementById("naming-preview-example");
+  if (el && ex.raw) el.textContent = ex.raw;
+}
+// Update preview when naming pattern changes
+document.querySelectorAll("#naming-radios [data-v]").forEach(card => {
+  card.addEventListener("click", () => setTimeout(updateNamingPreview, 50));
+});
+
+
+
+// ── Data table sync ────────────────────────────────────────────────────────
+function syncDataTable() {
+  const rows = document.querySelectorAll("#data-table-body tr");
+  STATE.dataDescription = Array.from(rows).map(tr => ({
+    type: tr.querySelector(".dt-type")?.value || "",
+    format: tr.querySelector(".dt-format")?.value || "",
+    volume: tr.querySelector(".dt-volume")?.value || "",
+    sensitive: tr.querySelector(".dt-sensitive")?.checked || false,
+    personal: tr.querySelector(".dt-personal")?.checked || false,
+    identifier: tr.querySelector(".dt-id")?.value || "",
+    origin: tr.querySelector(".dt-origin")?.value || "generated",
+  })).filter(r => r.type || r.identifier);
+  updateLicenseSections();
+  syncReusedTable();
+  renderFolderTree();
+}
+document.getElementById("data-table-body").addEventListener("input", syncDataTable);
+document.getElementById("data-table-body").addEventListener("change", syncDataTable);
+
+function addDataRow() {
+  const tbody = document.getElementById("data-table-body");
+  const tr = document.createElement("tr");
+  tr.innerHTML = '<td><input type="text" class="dt-id" placeholder="tabular_data"/></td><td><input type="text" class="dt-type" placeholder="Choisissez ou tapez…" list="datalist-types"/></td><td><input type="text" class="dt-format" placeholder="CSV, Parquet"/></td><td><input type="text" class="dt-volume" placeholder="~500 Go"/></td><td style="text-align:center"><input type="checkbox" class="dt-sensitive"/></td><td style="text-align:center"><input type="checkbox" class="dt-personal"/></td><td><select class="dt-origin" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="generated">Généré</option><option value="reused">Réutilisé</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncDataTable()" title="Supprimer">✕</button></td>';
+  tbody.appendChild(tr);
+  tr.querySelector(".dt-id").focus();
+}
+_rdm.addDataRow = addDataRow;
+_rdm.syncDataTable = syncDataTable;
+
+// ── Code table sync ──
+function syncCodeTable() {
+  const rows = document.querySelectorAll("#code-table-body tr");
+  STATE.codeDescription = Array.from(rows).map(tr => ({
+    language: tr.querySelector(".ct-lang")?.value || "",
+    repository: tr.querySelector(".ct-repo")?.value || "",
+    identifier: tr.querySelector(".ct-id")?.value || "",
+    origin: tr.querySelector(".ct-origin")?.value || "generated",
+  })).filter(r => r.identifier);
+  updateLicenseSections();
+  syncReusedTable();
+  const hasGeneratedCode = STATE.codeDescription.some(r => r.origin === "generated");
+  const opts = document.getElementById("code-options");
+  if (opts) opts.style.display = hasGeneratedCode ? "block" : "none";
+  renderFolderTree();
+}
+document.getElementById("code-table-body").addEventListener("input", syncCodeTable);
+document.getElementById("code-table-body").addEventListener("change", syncCodeTable);
+
+function addCodeRow() {
+  const tbody = document.getElementById("code-table-body");
+  const tr = document.createElement("tr");
+  tr.innerHTML = '<td><input type="text" class="ct-id" placeholder="src_analysis"/></td><td><input type="text" class="ct-lang" placeholder="Python 3" list="datalist-langs"/></td><td><input type="text" class="ct-repo" placeholder="github.com/epfl/…"/></td><td><select class="ct-origin" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="generated">Généré</option><option value="reused">Réutilisé</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncCodeTable()" title="Supprimer">✕</button></td>';
+  tbody.appendChild(tr);
+  tr.querySelector(".ct-id").focus();
+}
+_rdm.addCodeRow = addCodeRow;
+_rdm.syncCodeTable = syncCodeTable;
+
+// ── Reused sources sync ──
+function syncReusedTable() {
+  const tbody = document.getElementById("reused-table-body");
+  const section = document.getElementById("reused-section");
+  const empty = document.getElementById("reused-empty");
+  if (!tbody) return;
+  // Collect reused entries from data and code tables
+  const reused = {};
+  // From dataDescription — merge existing STATE fields but always set sourceTable="data"
+  STATE.dataDescription.forEach(row => {
+    if (row.origin === "reused" && row.identifier) {
+      reused[row.identifier] = {
+        doi: "", link: "", sourceLicense: "CC-BY-4.0", citation: "",
+        sourceTable: "data",
+        ...(STATE.reusedSources[row.identifier] || {}),
+        sourceTable: "data",  // ensure data sources stay tagged as data
+      };
+    }
+  });
+  // From codeDescription — merge existing STATE fields but always set sourceTable="code"
+  STATE.codeDescription.forEach(row => {
+    if (row.origin === "reused" && row.identifier) {
+      reused[row.identifier] = {
+        doi: "", link: "", sourceLicense: "MIT", citation: "",
+        sourceTable: "code",
+        ...(STATE.reusedSources[row.identifier] || {}),
+        sourceTable: "code",  // ensure code sources stay tagged as code
+      };
+    }
+  });
+  // Add manually added sources (keep their original sourceTable, default "data")
+  Object.entries(STATE.reusedSources).forEach(([id, data]) => {
+    if (data.manual) reused[id] = data;
+  });
+  STATE.reusedSources = reused;
+  
+  // Render
+  const ids = Object.keys(reused);
+  if (ids.length === 0) {
+    tbody.innerHTML = "";
+    if (section) section.style.display = "none";
+    return;
+  }
+  if (section) section.style.display = "block";
+  if (empty) empty.style.display = "none";
+  tbody.innerHTML = ids.map(id => {
+    const r = reused[id];
+    const icon = r.sourceTable === "code" ? "[Code]" : "[Data]";
+    const safeId = escapeHtml(id);
+    const safeDoi = escapeHtml(r.doi || "");
+    const safeLink = escapeHtml(r.link || "");
+    const safeCitation = escapeHtml(r.citation || "");
+    return `<tr>
+      <td><span style="cursor:pointer;color:var(--teal);text-decoration:underline" onclick="_rdm.scrollToSource('${safeId}')" title="Voir la source" data-id="${safeId}">${icon} ${safeId}</span></td>
+      <td><input type="text" class="rs-doi" value="${safeDoi}" placeholder="10.5281/zenodo.…" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"/></td>
+      <td><input type="text" class="rs-link" value="${safeLink}" placeholder="https://github.com/…" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"/></td>
+      <td><select class="rs-license" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)">
+        <optgroup label="Creative Commons">
+          <option value="CC0-1.0">CC0 1.0</option>
+          <option value="CC-BY-4.0">CC BY 4.0</option>
+          <option value="CC-BY-SA-4.0">CC BY-SA 4.0</option>
+          <option value="CC-BY-ND-4.0">CC BY-ND 4.0</option>
+          <option value="CC-BY-NC-4.0">CC BY-NC 4.0</option>
+          <option value="CC-BY-NC-SA-4.0">CC BY-NC-SA 4.0</option>
+          <option value="CC-BY-NC-ND-4.0">CC BY-NC-ND 4.0</option>
+        </optgroup>
+        <optgroup label="Open Source">
+          <option value="MIT">MIT</option>
+          <option value="Apache-2.0">Apache 2.0</option>
+          <option value="GPL-3.0">GPL v3</option>
+          <option value="BSD-3-Clause">BSD 3-Clause</option>
+        </optgroup>
+        <option value="restricted">Accès restreint</option>
+      </select></td>
+      <td><input type="text" class="rs-citation" value="${safeCitation}" placeholder="Auteur(s) (année). Titre." style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"/></td>
+      <td><button class="btn-icon" onclick="_rdm.removeReusedSource('${safeId}')" title="Supprimer">✕</button></td>
+    </tr>`;
+  }).join("");
+  
+  // Set license values from STATE (in case they were modified via syncReusedMeta)
+  tbody.querySelectorAll("tr").forEach(tr => {
+    const idSpan = tr.querySelector("[data-id]");
+    const rowSel = tr.querySelector(".rs-license");
+    if (idSpan && rowSel) {
+      const key = idSpan.dataset.id;
+      if (reused[key]?.sourceLicense) rowSel.value = reused[key].sourceLicense;
+    }
+  });
+  
+  updateLicenseWarnings();
+}
+_rdm.syncReusedTable = syncReusedTable;
+
+function syncReusedMeta() {
+  const rows = document.querySelectorAll("#reused-table-body tr");
+  rows.forEach(tr => {
+    const idSpan = tr.querySelector("[data-id]");
+    if (!idSpan) return;
+    const id = idSpan.dataset.id;
+    if (!id) return;
+    STATE.reusedSources[id] = STATE.reusedSources[id] || {};
+    STATE.reusedSources[id].doi = tr.querySelector(".rs-doi")?.value || "";
+    STATE.reusedSources[id].link = tr.querySelector(".rs-link")?.value || "";
+    STATE.reusedSources[id].sourceLicense = tr.querySelector(".rs-license")?.value || "CC-BY-4.0";
+    STATE.reusedSources[id].citation = tr.querySelector(".rs-citation")?.value || "";
+  });
+  // Update compatibility warnings after saving meta
+  updateLicenseWarnings();
+}
+document.getElementById("reused-table-body")?.addEventListener("input", syncReusedMeta);
+document.getElementById("reused-table-body")?.addEventListener("change", syncReusedMeta);
+
+function scrollToSource(id) {
+  // Try data table first, then code table
+  const dtInput = document.querySelector(`#data-table-body .dt-id[value="${id}"]`);
+  if (dtInput) { dtInput.closest("tr").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  const ctInput = document.querySelector(`#code-table-body .ct-id[value="${id}"]`);
+  if (ctInput) { ctInput.closest("tr").scrollIntoView({ behavior: "smooth", block: "center" }); }
+}
+_rdm.scrollToSource = scrollToSource;
+
+function removeReusedSource(id) {
+  delete STATE.reusedSources[id];
+  // Also update the origin in the corresponding table row
+  const dtInput = document.querySelector(`#data-table-body .dt-id[value="${id}"]`);
+  if (dtInput) { const sel = dtInput.closest("tr").querySelector(".dt-origin"); if (sel) sel.value = "generated"; }
+  const ctInput = document.querySelector(`#code-table-body .ct-id[value="${id}"]`);
+  if (ctInput) { const sel = ctInput.closest("tr").querySelector(".ct-origin"); if (sel) sel.value = "generated"; }
+  syncDataTable();
+  syncCodeTable();
+  syncReusedTable();
+}
+_rdm.removeReusedSource = removeReusedSource;
+
+function addManualSource() {
+  const id = "src_" + Date.now().toString(36);
+  STATE.reusedSources[id] = { doi: "", link: "", sourceLicense: "CC-BY-4.0", citation: "", sourceTable: "data", manual: true };
+  syncReusedTable();
+  setTimeout(() => {
+    const input = document.querySelector("#reused-table-body tr:last-child .rs-doi");
+    if (input) input.focus();
+  }, 100);
+}
+_rdm.addManualSource = addManualSource;
+
+// ── License compatibility warnings ──
+function updateLicenseWarnings() {
+  const dataLic = document.getElementById("data-license")?.value || "CC-BY-4.0";
+  const codeLic = document.getElementById("code-license")?.value || "MIT";
+  const strongCopyleft = ["GPL-2.0", "GPL-3.0", "AGPL-3.0"];
+  const ncLicenses = ["CC-BY-NC-4.0", "CC-BY-NC-SA-4.0", "CC-BY-NC-ND-4.0"];
+  const restricted = ["restricted"];
+  
+  let dataWarnings = [], codeWarnings = [];
+  let dataCompatItems = [], codeCompatItems = [];
+  
+  Object.entries(STATE.reusedSources).forEach(([id, r]) => {
+    if (!r.sourceLicense) return;
+    const isData = r.sourceTable === "data" || r.sourceTable === "data_manual";
+    const srcLic = r.sourceLicense;
+    let status = "Compatible";
+    let isIncompat = false;
+    
+    if (isData) {
+      if (ncLicenses.includes(srcLic) && dataLic === "CC-BY-4.0") { status = "Incompatible avec CC BY 4.0"; isIncompat = true; dataWarnings.push(id); }
+      else if (restricted.includes(srcLic) && !restricted.includes(dataLic)) { status = "Incompatible (accès restreint)"; isIncompat = true; dataWarnings.push(id); }
+      dataCompatItems.push({ id, lic: srcLic, status, isIncompat });
+    } else {
+      if (strongCopyleft.includes(srcLic) && !strongCopyleft.includes(codeLic)) { status = "Incompatible avec " + codeLic; isIncompat = true; codeWarnings.push(id); }
+      else if (restricted.includes(srcLic) && !restricted.includes(codeLic)) { status = "Incompatible (accès restreint)"; isIncompat = true; codeWarnings.push(id); }
+      codeCompatItems.push({ id, lic: srcLic, status, isIncompat });
+    }
+  });
+  
+  // Update warning boxes
+  const dataWarn = document.getElementById("compat-warn-data");
+  const codeWarn = document.getElementById("compat-warn-code");
+  if (dataWarn) {
+    dataWarn.style.display = dataWarnings.length ? "block" : "none";
+    dataWarn.innerHTML = dataWarnings.length ? `Attention : ${dataWarnings.length} source(s) réutilisée(s) incompatible(s). Vérifiez le tableau des sources ci-dessous.` : "";
+  }
+  if (codeWarn) {
+    codeWarn.style.display = codeWarnings.length ? "block" : "none";
+    codeWarn.innerHTML = codeWarnings.length ? `Attention : ${codeWarnings.length} source(s) réutilisée(s) incompatible(s). Vérifiez le tableau des sources ci-dessous.` : "";
+  }
+  
+  // Update reused sources summary table
+  const allItems = [...dataCompatItems, ...codeCompatItems];
+  const summaryBody = document.getElementById("reused-summary-body");
+  const summaryEmpty = document.getElementById("reused-summary-empty");
+  const summaryWrap = document.getElementById("reused-summary-table-wrap");
+  if (!summaryBody) return;
+  
+  if (allItems.length === 0) {
+    summaryBody.innerHTML = "";
+    if (summaryEmpty) summaryEmpty.style.display = "block";
+    if (summaryWrap) summaryWrap.style.display = "none";
+    return;
+  }
+  if (summaryEmpty) summaryEmpty.style.display = "none";
+  if (summaryWrap) summaryWrap.style.display = "block";
+  
+  summaryBody.innerHTML = allItems.map(item => `
+    <tr>
+      <td>${escapeHtml(item.id)}</td>
+      <td>${escapeHtml(item.lic)}</td>
+      <td style="color:${item.isIncompat ? 'var(--red)' : 'var(--teal)'}">${escapeHtml(item.status)}</td>
+    </tr>
+  `).join("");
+}
+_rdm.updateLicenseWarnings = updateLicenseWarnings;
+
+// ── License sections visibility ──
+function updateLicenseSections() {
+  const hasData = STATE.dataDescription.length > 0;
+  const hasCode = STATE.codeDescription.length > 0;
+  const dataSec = document.getElementById("data-license-section");
+  const codeSec = document.getElementById("code-license-section");
+  if (dataSec) dataSec.style.display = hasData ? "block" : "none";
+  if (codeSec) codeSec.style.display = hasCode ? "block" : "none";
+}
+
+// ── Contributors sync ──
+function syncContributors() {
+  const rows = document.querySelectorAll("#contributors-body tr");
+  STATE.contributors = Array.from(rows).map(tr => ({
+    lastName: tr.querySelector(".ct-last")?.value || "",
+    firstName: tr.querySelector(".ct-first")?.value || "",
+    email: tr.querySelector(".ct-email")?.value || "",
+    orcid: tr.querySelector(".ct-orcid")?.value || "",
+    role: tr.querySelector(".ct-role")?.value || "",
+  })).filter(r => r.lastName || r.firstName);
+}
+document.getElementById("contributors-body").addEventListener("input", syncContributors);
+document.getElementById("contributors-body").addEventListener("change", syncContributors);
+
+function addContributorRow() {
+  const tbody = document.getElementById("contributors-body");
+  const tr = document.createElement("tr");
+  tr.innerHTML = '<td><input type="text" class="ct-last" placeholder="Doe"/></td><td><input type="text" class="ct-first" placeholder="Jane"/></td><td><input type="email" class="ct-email" placeholder="jane.doe@epfl.ch"/></td><td><input type="text" class="ct-orcid" placeholder="0000-0000-0000-0000"/></td><td><select class="ct-role" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="">—</option><option value="Project leader">Project leader</option><option value="Project manager">Project manager</option><option value="Data collector">Data collector</option><option value="Data curator">Data curator</option><option value="Data manager">Data manager</option><option value="Researcher">Researcher</option><option value="Supervisor">Supervisor</option><option value="Contact person">Contact person</option><option value="Producer">Producer</option><option value="Editor">Editor</option><option value="Distributor">Distributor</option><option value="Sponsor">Sponsor</option><option value="Hosting institution">Hosting institution</option><option value="Other">Other</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncContributors()" title="Supprimer">✕</button></td>';
+  tbody.appendChild(tr);
+  tr.querySelector(".ct-last").focus();
+}
+_rdm.addContributorRow = addContributorRow;
+_rdm.syncContributors = syncContributors;
+
+// ── Funder — afficher les exigences
+document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
+  card.addEventListener("click", () => updateFunderUI(card.dataset.v));
+});
+
+  // ── Validation par étape ───────────────────────────────────────────────────
+  const STEP_RULES = [
+    // Étape 0 — Projet & financement
+    () => {
+      const errors = [];
+      if (!STATE.projectName.trim()) errors.push({ id: "proj-name",    msg: t("val.name") });
+      if (!STATE.unit.trim())        errors.push({ id: "proj-unit",    msg: t("val.unit") });
+      if (!STATE.funder)             errors.push({ id: "funder-radios", msg: t("val.funder") });
+      if (!STATE.projectDescription.trim()) errors.push({ id: "proj-desc", msg: "Description requise" });
+      if (!STATE.keywords.trim())          errors.push({ id: "proj-keywords", msg: "Mots-clés requis" });
+      return errors;
+    },
+    // Étape 1 — Données & code
+    () => {
+      const errors = [];
+      const dataRows = Array.isArray(STATE.dataDescription) ? STATE.dataDescription : [];
+      const codeRows = Array.isArray(STATE.codeDescription) ? STATE.codeDescription : [];
+      if (!dataRows.length && !codeRows.length) {
+        errors.push({ id: "data-table", msg: t("val.datatypes") });
+      }
+      // Vérifier chaque ligne de données
+      dataRows.forEach((r, i) => {
+        if (r.type && !r.identifier) errors.push({ id: "data-table", msg: `Ligne ${i+1} : identifiant requis` });
+        if (r.type && !r.format)  errors.push({ id: "data-table", msg: `Ligne ${i+1} : format requis` });
+        if (r.type && !r.volume)  errors.push({ id: "data-table", msg: `Ligne ${i+1} : volume requis` });
+      });
+      // Vérifier chaque ligne de code
+      codeRows.forEach((r, i) => {
+        if (r.identifier && !r.language) errors.push({ id: "code-table", msg: `Ligne ${i+1} : langage requis` });
+        if (r.identifier && !r.repository) errors.push({ id: "code-table", msg: `Ligne ${i+1} : entrepôt requis` });
+      });
+      return errors;
+    },
+    // Étape 2 — Licences (vérifier compatibilité)
+    () => {
+      const errors = [];
+      const dataLic = STATE.dataLicense || "CC-BY-4.0";
+      const codeLic = STATE.codeLicense || "MIT";
+      const strongCopyleft = ["GPL-2.0", "GPL-3.0", "AGPL-3.0"];
+      const ncLicenses = ["CC-BY-NC-4.0", "CC-BY-NC-SA-4.0", "CC-BY-NC-ND-4.0"];
+      const restricted = ["restricted"];
+      let incompatData = 0, incompatCode = 0;
+      Object.entries(STATE.reusedSources || {}).forEach(([id, r]) => {
+        if (!r.sourceLicense) return;
+        const isData = r.sourceTable === "data" || r.sourceTable === "data_manual";
+        const srcLic = r.sourceLicense;
+        if (isData) {
+          if (ncLicenses.includes(srcLic) && dataLic === "CC-BY-4.0") incompatData++;
+          else if (restricted.includes(srcLic) && !restricted.includes(dataLic)) incompatData++;
+        } else {
+          if (strongCopyleft.includes(srcLic) && !strongCopyleft.includes(codeLic)) incompatCode++;
+          else if (restricted.includes(srcLic) && !restricted.includes(codeLic)) incompatCode++;
+        }
+      });
+      if (incompatData > 0) errors.push({ id: "compat-warn-data", msg: `Attention : ${incompatData} source(s) réutilisée(s) avec licence incompatible avec ${dataLic}. Vérifiez la compatibilité.` });
+      if (incompatCode > 0) errors.push({ id: "compat-warn-code", msg: `Attention : ${incompatCode} source(s) réutilisée(s) avec licence incompatible avec ${codeLic}. Vérifiez la compatibilité.` });
+      return errors;
+    },
+    // Étape 3 — Résultat (pas de validation)
+    () => [],
+  ];
+
+function validate() {
+  clearAllErrors();
+  const step = getStep();
+  if (step >= STEP_RULES.length) return true;
+  const errors = STEP_RULES[step]();
+  if (!errors.length) return true;
+  errors.forEach(showError);
+  // Scroller vers la première erreur
+  const firstEl = document.getElementById(errors[0].id);
+  if (firstEl) firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  return false;
+}
+
+function showError({ id, msg }) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = "block";
+  el.classList.add("has-error");
+  // Insérer ou mettre à jour le message d'erreur juste après
+  let err = el.parentElement.querySelector(".field-error");
+  if (!err) {
+    err = document.createElement("div");
+    err.className = "field-error";
+    el.insertAdjacentElement("afterend", err);
+  }
+  err.textContent = msg;
+}
+
+function clearError(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("has-error");
+  const err = el.parentElement?.querySelector(".field-error");
+  if (err) err.remove();
+}
+
+function clearAllErrors() {
+  document.querySelectorAll(".has-error").forEach(el => el.classList.remove("has-error"));
+  document.querySelectorAll(".field-error").forEach(el => el.remove());
+  document.querySelectorAll(".license-compat-warning").forEach(el => el.style.display = "none");
+}
+
+// ── Funder info ────────────────────────────────────────────────────────────
+function updateFunderUI(funder) {
+  const ctx = evaluateState({ ...STATE, funder });
+  const f = ctx.funderMeta;
+  if (!f) return;
+  const info = document.getElementById("funder-info");
+  const reqLabel      = getLang() === "fr" ? "Exigences clés"     : "Key requirements";
+  const policyLabel   = getLang() === "fr" ? "Politique open data" : "Open data policy";
+  const deadlineLabel = getLang() === "fr" ? "Délai DMP"          : "DMP deadline";
+
+  // Traductions des contenus
+  const labelT  = t(`funder.${funder}.label`) || f.label;
+  const reqsRaw = t(`funder.${funder}.requirements`) || "";
+  const reqs    = reqsRaw ? reqsRaw.split(";") : f.requirements;
+  const openData = t(`funder.${funder}.openDataPolicy`) || f.openDataPolicy;
+  const deadline = t(`funder.${funder}.dmpDeadline`) || f.dmpDeadline;
+
+  info.innerHTML = `<strong>${labelT}</strong>
+    <ul>${reqs.map(r => `<li>${r}</li>`).join("")}</ul>
+    <strong>${policyLabel}:</strong> ${openData}<br>
+    <strong>${deadlineLabel}:</strong> ${deadline}`;
+  info.style.display = "block";
+}
+
+// Exposer pour appel depuis app.js (updateFunderUI instead of updateFunderInfo)
+window._rdm.updateFunderUI = updateFunderUI;
+
+// ── Textes dynamiques qui dépendent de la langue ─────────────────────────
+function updateDynamicTexts() {
+  if (!getLang()) return;
+  const step = getStep();
+  const topStep = document.getElementById("top-step");
+  if (topStep) {
+    topStep.textContent = step < 3 ? t("topbar.step", step + 1, 3) : t("topbar.result");
+  }
+  // Sidebar nav items — update ALL data-i18n elements (titles + hints)
+  document.querySelectorAll(".nav-step").forEach((el, i) => {
+    el.querySelectorAll("[data-i18n]").forEach(titleEl => {
+      if (titleEl.dataset.i18n) titleEl.textContent = t(titleEl.dataset.i18n);
+    });
+  });
+  clearAllErrors();
+  updateLicenseWarnings();
+}
+
+// ── Overlay helpers ─────────────────────────────────────────────────────────
+function showOverlay(msgKey, sub) {
+  const o = document.getElementById("loading-overlay");
+  if (o) o.classList.add("show");
+  const msg = document.getElementById("overlay-msg");
+  if (msg && t) msg.textContent = t(msgKey);
+  const subEl = document.getElementById("overlay-sub");
+  if (subEl) subEl.textContent = sub || "";
+}
+function hideOverlay() {
+  const o = document.getElementById("loading-overlay");
+  if (o) o.classList.remove("show");
+}
+
+// ── Résultat ───────────────────────────────────────────────────────────────
+function buildResult() {
+  showOverlay("overlay.generating");
+  const ctx = evaluateState(STATE);
+  const summary = buildSummary(ctx);
+
+  // Summary grid
+  const grid = document.getElementById("summary-grid");
+  const cells = [
+    [t("sum.project"),   summary.project],
+    [t("sum.unit"),      summary.unit],
+    [t("sum.funder"),    summary.funder],
+  ];
+  if (summary.dataCount > 0) {
+    cells.push([t("sum.datasets"),  summary.dataCount + " jeu(x)"]);
+    cells.push([t("sum.datalic"),   summary.dataLicense]);
+  }
+  if (summary.codeCount > 0) {
+    cells.push([t("sum.codes"),     summary.codeCount + " log."]);
+    cells.push([t("sum.codelic"),   summary.codeLicense]);
+  }
+  if (summary.hasSensitive) cells.push([t("sum.sensitive"), t("sum.yes_warn")]);
+  grid.innerHTML = cells.map(([k,v]) =>
+    `<div class="stat-cell"><div class="stat-key">${escapeHtml(k)}</div><div class="stat-val">${escapeHtml(v) || "—"}</div></div>`
+  ).join("");
+
+  // Tree preview — renderFolderTree() remplace buildTreePreview() car il gère l'arborescence interactive
+  renderFolderTree();
+
+  // Naming preview
+  document.getElementById("naming-preview").textContent = T.buildNamingConventions(STATE, ctx, "en");
+
+  // README preview
+  document.getElementById("readme-preview").textContent = T.buildReadme(STATE, ctx, "en");
+
+  // Ressources incluses
+  const resDiv = document.getElementById("resources-preview");
+  if (resDiv) {
+    const typeColors = {
+      PDF:  "background:#FEF0F0;color:#A80013;border:1px solid #FCE4E4",
+      DOCX: "background:#E6F1FB;color:#0C447C;border:1px solid #B5D4F4",
+      ODT:  "background:#E0F0EB;color:#0F6E56;border:1px solid #9FE1CB",
+      MD:   "background:#F1EFE8;color:#444441;border:1px solid #D3D1C7",
+      CSV:  "background:#FDF4E1;color:#633806;border:1px solid #FAC775",
+    };
+    const getType = f => f.split(".").pop().toUpperCase();
+    const row = (label, file) => {
+      const type = getType(file);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:6px">
+        <span style="font-size:13px;color:var(--ink-2)">${label}</span>
+        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:99px;${typeColors[type]||typeColors.MD}">${type}</span>
+      </div>`;
+    };
+    const section = (title, rows) => rows.length ? `
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px">${title}</div>
+        ${rows.join("")}
+      </div>` : "";
+
+    const dmpRows    = ctx.activeResources.filter(r => r.file.toLowerCase().startsWith("dmp")).map(r => row(r.label, r.file));
+    const guideRows  = ctx.activeResources.filter(r => !r.file.toLowerCase().startsWith("dmp") && !r.file.toLowerCase().startsWith("rdm_strategy")).map(r => row(r.label, r.file));
+    const stratRows  = ctx.activeResources.filter(r => r.file.toLowerCase().startsWith("rdm_strategy")).map(r => row(r.label, r.file));
+    const checkRows  = [
+      row(t("res.checklist.collection"), "checklist_data_collection.md"),
+      row(t("res.checklist.quality"),    "checklist_data_quality.md"),
+      row(t("res.checklist.archiving"),  "checklist_archiving.md"),
+      ...(Array.isArray(STATE.dataDescription) && STATE.dataDescription.some(d => d.sensitive || d.personal) ? [
+        row(t("res.checklist.ethics"), "checklist_ethics.md"),
+        row(t("res.guide.anon"),       "guide_anonymization.md"),
+      ] : []),
+      row(t("res.dict"),    "data_dictionary_template.csv"),
+      row(t("res.readme"),  "README.md"),
+      row(t("res.naming"),  "NAMING_CONVENTIONS.md"),
+    ];
+
+    resDiv.innerHTML =
+      section(t("res.dmp"),        dmpRows) +
+      section(t("res.guides"),     guideRows) +
+      section(t("res.strategy"),   stratRows) +
+      section(t("res.checks"), checkRows);
+  }
+
+  // DL meta
+  const fileCount = 12 + ctx.dataFolders.length * 2 + ctx.activeResources.length + (STATE.generateNotebook ? 1 : 0) + (STATE.generateGitignore ? 1 : 0);
+  const filesLabel    = getLang() === "fr" ? "fichiers" : "files";
+  const resourceLabel = getLang() === "fr" ? "ressources EPFL" : "EPFL resources";
+  document.getElementById("dl-meta").innerHTML = [
+    `<div class="dl-meta-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h8M4 10h8M4 14h8M2 2h12v14H2z"/></svg>${fileCount}+ ${filesLabel}</div>`,
+    `<div class="dl-meta-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="12" height="12" rx="2"/></svg>DMP Template — ${ctx.funderMeta.label}</div>`,
+    `<div class="dl-meta-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v12M2 8h12"/></svg>${ctx.activeResources.length} ${resourceLabel}</div>`,
+  ].join("");
+
+  nextStep();
+  _maxStep = Math.max(_maxStep, getStep());
+  updateSidebarMax();
+  hideOverlay();
+}
+
+// ── Téléchargement ─────────────────────────────────────────────────────────
+async function triggerDownload() {
+  const btn = document.getElementById("dl-btn");
+  const progressWrap = document.getElementById("progress-dl");
+  const fill = document.getElementById("dl-fill");
+  const label = document.getElementById("dl-label");
+  btn.disabled = true;
+  progressWrap.classList.add("show");
+  showOverlay("overlay.downloading", t("s6.dl.prep"));
+  try {
+    await assembleAndDownload((pct, msg) => {
+      fill.style.width = pct + "%";
+      fill.setAttribute("aria-valuenow", pct);
+      label.textContent = msg;
+    });
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg> ${t("btn.download.again")}`;
+      fill.style.width = "100%";
+      fill.setAttribute("aria-valuenow", 100);
+      label.textContent = t("s6.dl.done");
+    }, 1000);
+  } catch (e) {
+    console.error("[RDM] Download failed:", e);
+    label.textContent = t("s6.dl.error") || "Download error";
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg> ${t("btn.download")}`;
+  } finally {
+    hideOverlay();
+  }
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+function showTab(n) {
+  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("on", i===n));
+  document.querySelectorAll(".tab-panel").forEach((p,i) => p.classList.toggle("on", i===n));
+}
+
+// ── Copy ───────────────────────────────────────────────────────────────────
+function copyEl(id, btn) {
+  const text = document.getElementById(id)?.textContent || "";
+  const doCopy = () => {
+    if (!btn) return;
+    const prev = btn.textContent;
+    btn.textContent = t ? t("btn.copied") : "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = t ? t("btn.copy") : "Copy";
+      btn.classList.remove("copied");
+    }, 1500);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(doCopy).catch(() => {
+      // fallback execCommand
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      doCopy();
+    });
+  } else {
+    // Fallback pour HTTP
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    doCopy();
+  }
+}
+
+// ── Folder tree customisation (interactive tree with checkboxes) ────────────
+function renderFolderTree() {
+  const container = document.getElementById("tree-preview");
+  if (!container) return;
+  const ctx = evaluateState(STATE);
+  const folders = getDefaultFolders(STATE, ctx);
+  
+  STATE._customFolders = STATE._customFolders || {};
+  
+  // Build tree structure
+  const tree = {};
+  folders.forEach(f => {
+    const parts = f.path.split("/");
+    const root = parts[0];
+    if (!tree[root]) tree[root] = [];
+    tree[root].push(f);
+  });
+  
+  const rootKeys = Object.keys(tree);
+  const p = STATE.projectName || "mon_projet";
+  
+  // Count total items
+  const totalItems = folders.length;
+  const checkedItems = folders.filter(f => {
+    const val = STATE._customFolders[f.path];
+    return val !== undefined ? val : f.active;
+  }).length;
+  
+  let html = `<div class="folder-root">
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+      <input type="checkbox" id="toggle-all" ${checkedItems === totalItems ? "checked" : ""}/>
+      <span>${p}/</span>
+      <span class="folder-count">${checkedItems}/${totalItems}</span>
+    </label>
+  </div>`;
+  
+  rootKeys.forEach((root, i) => {
+    const children = tree[root];
+    const allChecked = children.every(f => {
+      const val = STATE._customFolders[f.path];
+      return val !== undefined ? val : f.active;
+    });
+    const someChecked = children.some(f => {
+      const val = STATE._customFolders[f.path];
+      return val !== undefined ? val : f.active;
+    });
+    const checkedCount = children.filter(f => {
+      const val = STATE._customFolders[f.path];
+      return val !== undefined ? val : f.active;
+    }).length;
+    const isLast = i === rootKeys.length - 1;
+    
+    html += `<div class="folder-tree-line">
+      <span class="tree-char">${isLast ? "└" : "├"}</span>
+      <label class="folder-parent" style="flex:1">
+        <input type="checkbox" data-root="${root}" ${allChecked ? "checked" : ""}/>
+        <span>${root}/</span>
+        <span class="folder-count">${checkedCount}/${children.length}</span>
+      </label>
+    </div>`;
+    
+    if (children.length > 0) {
+      html += `<div class="folder-children">`;
+      children.forEach((f, j) => {
+        const checked = STATE._customFolders[f.path] !== undefined ? STATE._customFolders[f.path] : f.active;
+        const sub = f.path.split("/")[1];
+        html += `<label class="folder-child">
+          <input type="checkbox" data-path="${f.path}" ${checked ? "checked" : ""}/>
+          <span>${sub || f.path}</span>
+        </label>`;
+      });
+      html += `</div>`;
+    }
+  });
+  
+  container.innerHTML = html;
+  
+  // Event: root checkbox
+  container.querySelectorAll("[data-root]").forEach(cb => {
+    cb.addEventListener("change", function() {
+      const root = this.dataset.root;
+      const children = tree[root];
+      children.forEach(f => { STATE._customFolders[f.path] = this.checked; });
+      renderFolderTree();
+    });
+  });
+  
+  // Event: child checkbox
+  container.querySelectorAll("[data-path]").forEach(cb => {
+    cb.addEventListener("change", function() {
+      STATE._customFolders[this.dataset.path] = this.checked;
+      renderFolderTree();
+    });
+  });
+  
+  // Event: toggle all
+  const toggleAll = document.getElementById("toggle-all");
+  if (toggleAll) {
+    toggleAll.addEventListener("change", function() {
+      folders.forEach(f => { STATE._customFolders[f.path] = this.checked; });
+      renderFolderTree();
+    });
+  }
+}
+_rdm.renderFolderTree = renderFolderTree;
+
+// ── Nouveau projet ─────────────────────────────────────────────────────────
+function startNew() {
+  if (!confirm(t("confirm.new"))) return;
+  // Réinitialiser STATE
+  Object.assign(STATE, {
+    projectName: "", unit: "", contributors: [],
+    projectDescription: "", methodology: "", keywords: "",
+    grantNumber: "",
+    multisite: false, humanData: false, multiTeam: false,
+    dataDescription: [],
+    codeDescription: [],
+    namingPattern: "rdm",
+    funder: null, dataLicense: "CC-BY-4.0", codeLicense: "MIT",
+    generateNotebook: false, generateGitignore: false,
+    reusedSources: {},
+  });
+  // Vider les tableaux dynamiques
+  document.getElementById("contributors-body").innerHTML = "";
+  document.getElementById("data-table-body").innerHTML = "";
+  document.getElementById("code-table-body").innerHTML = "";
+  document.getElementById("reused-table-body").innerHTML = "";
+  document.getElementById("funder-info").style.display = "none";
+  // Vider tous les champs DOM
+  document.querySelectorAll("input[type=text], input[type=email]").forEach(el => el.value = "");
+  document.querySelectorAll("input[type=checkbox]").forEach(el => el.checked = false);
+  document.querySelectorAll("select").forEach(el => el.selectedIndex = 0);
+  document.querySelectorAll(".chip.on, .radio-card.on, .toggle-btn.on, .funder-card.on").forEach(el => el.classList.remove("on"));
+  // Revenir à l'étape 1
+  _maxStep = 0;
+  goToStep(0);
+  updateSidebarMax();
+  updateDynamicTexts();
+}
+</script>
+<!-- Loading overlay -->
+<div class="overlay" id="loading-overlay">
+  <div class="overlay-box">
+    <div class="overlay-spinner"></div>
+    <div class="overlay-msg" id="overlay-msg" data-i18n="overlay.generating">Génération en cours…</div>
+    <div class="overlay-sub" id="overlay-sub"></div>
+  </div>
+</div>
+<div class="help-tip" id="help-tip"></div>
+</body>
+</html>

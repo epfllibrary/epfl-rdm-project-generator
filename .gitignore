@@ -1,0 +1,27 @@
+# ── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ── Editors ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+
+# ── Logs & temp ──────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
+
+# ── Local config overrides ───────────────────────────────────────────────────
+# Useful if someone wants a local config without committing it
+config.local.js
+
+AGENTS.md
+.opencode
