@@ -53,7 +53,7 @@ const UI = {
   "s2.desc":    { fr: "Choisissez les licences pour vos données et votre code.", en: "Choose licenses for your data and code." },
   "s1.id":      { fr: "Identification du projet", en: "Project identification" },
   "s1.name":    { fr: "Nom du projet",            en: "Project name" },
-  "s1.name.hint":{ fr: "Sans espaces ni caractères spéciaux. Ex :", en: "No spaces or special characters. E.g.:" },
+  "s1.name.hint":{ fr: "Max 32 caractères, underscores, pas d'espaces. Ex :", en: "Max 32 characters, underscores, no spaces. E.g.:" },
   "s1.name.ph": { fr: "nom_projet",               en: "project_name" },
   "s1.unit":    { fr: "Laboratoire / Unité EPFL",  en: "Laboratory / EPFL Unit" },
   "s1.unit.ph": { fr: "Ex : LSMS, LCAV, CHILI…",  en: "E.g. LSMS, LCAV, CHILI…" },
@@ -61,12 +61,13 @@ const UI = {
   "s1.grant.ph":  { fr: "Ex : 200021_212344",            en: "E.g. 200021_212344" },
 
   // Collaborators
-  "collaborators.title":   { fr: "Collaborateurs", en: "Contributors" },
+  "collaborators.title":   { fr: "Personnes et rôles", en: "People and roles" },
   "collaborators.desc":    { fr: "Ajoutez les personnes impliquées dans le projet.", en: "Add people involved in this project." },
   "collaborators.last":    { fr: "Nom", en: "Last name" },
   "collaborators.first":   { fr: "Prénom", en: "First name" },
-  "collaborators.email":   { fr: "Email", en: "Email" },
+  "collaborators.email":   { fr: "Email professionnel", en: "Professional email" },
   "collaborators.role":    { fr: "Rôle", en: "Role" },
+  "collaborators.ror":     { fr: "ROR", en: "ROR" },
   "collaborators.add":     { fr: "+ Ajouter un collaborateur", en: "+ Add contributor" },
 
   // Roles
@@ -140,8 +141,8 @@ const UI = {
 
   // Field hints (HTML content)
   "s1.name.hint.full": {
-    fr: 'Sans espaces ni caractères spéciaux. Ex : <code style="font-family:monospace;font-size:12px;background:var(--bg);padding:1px 5px;border-radius:3px">morphology_neurons</code>',
-    en: 'No spaces or special characters. E.g.: <code style="font-family:monospace;font-size:12px;background:var(--bg);padding:1px 5px;border-radius:3px">morphology_neurons</code>',
+    fr: 'Max 32 caractères, underscores, pas d\'espaces. Ex : <code style="font-family:monospace;font-size:12px;background:var(--bg);padding:1px 5px;border-radius:3px">morphology_neurons</code>. <a href="https://go.epfl.ch/rdm-naming" target="_blank" rel="noopener noreferrer">Voir le guide →</a>',
+    en: 'Max 32 characters, underscores, no spaces. E.g.: <code style="font-family:monospace;font-size:12px;background:var(--bg);padding:1px 5px;border-radius:3px">morphology_neurons</code>. <a href="https://go.epfl.ch/rdm-naming" target="_blank" rel="noopener noreferrer">See the guide →</a>',
   },
   // Funder badges
   "s4.snsf.badge": { fr: "Open Research Data",      en: "Open Research Data" },
@@ -212,6 +213,9 @@ const UI = {
   "data_table.format":{ fr: "Formats", en: "Formats" },
   "data_table.volume":{ fr: "Volume estimé", en: "Estimated volume" },
   "data_table.id":   { fr: "Identifiant", en: "Identifier" },
+  "data_table.sensitive": { fr: "Sensible", en: "Sensitive" },
+  "data_table.personal":  { fr: "Personnel", en: "Personal" },
+  "data_table.origin":    { fr: "Origine", en: "Origin" },
 
   // Code table headers
   "code_table.title": { fr: "Code / Logiciel", en: "Code / Software" },
@@ -241,9 +245,11 @@ const UI = {
   "code.gitignore.desc": { fr: "Pour projet Jupyter / ML — exclut données, caches, environnements", en: "For Jupyter/ML projects — excludes data, caches, environments" },
 
   // Help tooltips
-  "tip.orcid":    { fr: "Pas encore d'ORCID ? Rendez-vous sur https://orcid-integration.epfl.ch/", en: "No ORCID yet? Visit https://orcid-integration.epfl.ch/" },
+  "tip.orcid":    { fr: 'Pas encore d\'ORCID ? Créez-en un ici : <a href="https://orcid.org" target="_blank" rel="noopener noreferrer">https://orcid.org</a>', en: 'No ORCID yet? Create one here: <a href="https://orcid.org" target="_blank" rel="noopener noreferrer">https://orcid.org</a>' },
   "tip.sensitive": { fr: "Données révélant l'origine raciale, les convictions, la santé... (GDPR Art. 9)", en: "Data revealing racial origin, beliefs, health... (GDPR Art. 9)" },
   "tip.personal":  { fr: "Toute information identifiant directement ou indirectement une personne (GDPR Art. 4)", en: "Any information directly or indirectly identifying a person (GDPR Art. 4)" },
+  "tip.notebook":  { fr: "Génère un notebook Jupyter avec pandas, numpy, matplotlib, scikit-learn pré-importés", en: "Generates a Jupyter notebook with pandas, numpy, matplotlib, scikit-learn pre-imported" },
+  "tip.gitignore": { fr: "Exclut les caches Python, les données sensibles, les notebooks de checkpoint", en: "Excludes Python caches, sensitive data, checkpoint notebooks" },
 
   // Reused sources
   "reused.title":    { fr: "Sources réutilisées",          en: "Reused sources" },
@@ -258,9 +264,12 @@ const UI = {
 
   // Options checkboxes (replacing project type / team size)
   "options.title":    { fr: "Options",                     en: "Options" },
-  "options.multisite":   { fr: "Projet multi-site",           en: "Multi-site project" },
+  "options.multisite":   { fr: "Multi-site",                 en: "Multi-site" },
+  "options.multisite.desc": { fr: "Ajoute un dossier Multi_Site/ et un template de Data Transfer Agreement", en: "Adds a Multi_Site/ folder and a Data Transfer Agreement template" },
   "options.humandata":   { fr: "Données humaines",            en: "Human data" },
+  "options.humandata.desc": { fr: "Ajoute des dossiers Clinical/ et des checklists éthiques", en: "Adds Clinical/ folders and ethics checklists" },
   "options.multiteam":   { fr: "Équipe multi-acteurs",        en: "Multi-actor team" },
+  "options.multiteam.desc": { fr: "Ajoute un dossier External_Collab/ et une stratégie RDM", en: "Adds an External_Collab/ folder and an RDM strategy" },
 
   // ── Traductions des informations financeurs ──────────────────────────────────
   "funder.SNSF.label":         { fr: "SNSF / FNS", en: "SNSF / FNS" },

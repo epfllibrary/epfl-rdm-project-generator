@@ -109,6 +109,7 @@
                 <th style="min-width:120px" data-i18n="collaborators.first">Prénom</th>
                 <th style="min-width:160px" data-i18n="collaborators.email">Email</th>
                 <th style="min-width:140px">ORCID <span class="help-icon" data-i18n-tip="tip.orcid">?</span></th>
+                <th style="min-width:120px" data-i18n="collaborators.ror">ROR</th>
                 <th style="min-width:150px" data-i18n="collaborators.role">Rôle</th>
                 <th style="width:30px"></th>
               </tr>
@@ -139,19 +140,28 @@
 
       <!-- Options (compact) -->
       <div class="card">
-        <div class="card-label" data-i18n="options.title">Options du projet</div>
+        <div class="card-label" data-i18n="options.title">Options</div>
         <div class="options-row">
-          <label class="cb-row" style="margin-bottom:0">
+          <label class="cb-row" style="margin-bottom:4px">
             <input type="checkbox" id="cb-multisite"/>
-            <div class="cb-label"><strong data-i18n="options.multisite">Multi-site</strong></div>
+            <div class="cb-label">
+              <strong data-i18n="options.multisite">Multi-site</strong>
+              <span data-i18n="options.multisite.desc">Ajoute un dossier Multi_Site/ et un template de Data Transfer Agreement</span>
+            </div>
           </label>
-          <label class="cb-row" style="margin-bottom:0">
+          <label class="cb-row" style="margin-bottom:4px">
             <input type="checkbox" id="cb-humandata"/>
-            <div class="cb-label"><strong data-i18n="options.humandata">Données humaines</strong></div>
+            <div class="cb-label">
+              <strong data-i18n="options.humandata">Données humaines</strong>
+              <span data-i18n="options.humandata.desc">Ajoute des dossiers Clinical/ et des checklists éthiques</span>
+            </div>
           </label>
-          <label class="cb-row" style="margin-bottom:0">
+          <label class="cb-row" style="margin-bottom:4px">
             <input type="checkbox" id="cb-multiteam"/>
-            <div class="cb-label"><strong data-i18n="options.multiteam">Multi-acteurs</strong></div>
+            <div class="cb-label">
+              <strong data-i18n="options.multiteam">Multi-acteurs</strong>
+              <span data-i18n="options.multiteam.desc">Ajoute un dossier External_Collab/ et une stratégie RDM</span>
+            </div>
           </label>
         </div>
       </div>
@@ -216,9 +226,9 @@
                 <th style="min-width:160px" data-i18n="data_table.type">Type</th>
                 <th style="min-width:120px" data-i18n="data_table.format">Format</th>
                 <th style="min-width:100px" data-i18n="data_table.volume">Volume</th>
-                <th style="min-width:60px;text-align:center">Sensible <span class="help-icon" data-i18n-tip="tip.sensitive">?</span></th>
-                <th style="min-width:60px;text-align:center">Personnel <span class="help-icon" data-i18n-tip="tip.personal">?</span></th>
-                <th style="min-width:80px">Origine</th>
+                <th style="min-width:60px;text-align:center"><span data-i18n="data_table.sensitive">Sensible</span> <span class="help-icon" data-i18n-tip="tip.sensitive">?</span></th>
+                <th style="min-width:60px;text-align:center"><span data-i18n="data_table.personal">Personnel</span> <span class="help-icon" data-i18n-tip="tip.personal">?</span></th>
+                <th style="min-width:80px" data-i18n="data_table.origin">Origine</th>
                 <th style="width:30px"></th>
               </tr>
             </thead>
@@ -265,11 +275,11 @@
         <div id="code-options" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)">
           <label class="cb-row" style="margin-bottom:0">
             <input type="checkbox" id="cb-notebook"/>
-            <div class="cb-label"><strong data-i18n="code.notebook">Générer un notebook Jupyter</strong><span data-i18n="code.notebook.desc">Notebook d'exploration avec pandas, numpy, matplotlib, scikit-learn, PyTorch</span></div>
+            <div class="cb-label"><strong data-i18n="code.notebook">Générer un notebook Jupyter</strong> <span class="help-icon" data-i18n-tip="tip.notebook">?</span><span data-i18n="code.notebook.desc">Notebook d'exploration avec pandas, numpy, matplotlib, scikit-learn, PyTorch</span></div>
           </label>
           <label class="cb-row" style="margin-bottom:0;margin-top:6px">
             <input type="checkbox" id="cb-gitignore"/>
-            <div class="cb-label"><strong data-i18n="code.gitignore">Inclure un .gitignore adapté</strong><span data-i18n="code.gitignore.desc">Pour projet Jupyter / ML — exclut données, caches, environnements</span></div>
+            <div class="cb-label"><strong data-i18n="code.gitignore">Inclure un .gitignore adapté</strong> <span class="help-icon" data-i18n-tip="tip.gitignore">?</span><span data-i18n="code.gitignore.desc">Pour projet Jupyter / ML — exclut données, caches, environnements</span></div>
           </label>
         </div>
       </div>
@@ -354,6 +364,10 @@
             <option value="CC-BY-NC-4.0">CC BY-NC 4.0 — Attribution + non commercial</option>
             <option value="CC-BY-NC-SA-4.0">CC BY-NC-SA 4.0 — Attribution + non commercial + partage à l'identique</option>
             <option value="CC-BY-NC-ND-4.0">CC BY-NC-ND 4.0 — Attribution + non commercial + pas de modification</option>
+            <option value="CC-BY-2.0">CC BY 2.0 — Attribution (version antérieure)</option>
+          </optgroup>
+          <optgroup label="Open Database">
+            <option value="ODbL-1.0">ODbL 1.0 — Open Database License</option>
           </optgroup>
           <optgroup label="Accès restreint">
             <option value="restricted">Accès restreint / propriétaire</option>
@@ -392,6 +406,7 @@
           <option value="Apache-2.0">Apache 2.0</option>
           <option value="GPL-3.0">GPL v3 (copyleft)</option>
           <option value="BSD-3-Clause">BSD 3-Clause</option>
+          <option value="CC-BY-2.0">CC BY 2.0</option>
           <option value="none">Propriétaire / non défini</option>
         </select>
         <div class="license-compat-warning" id="compat-warn-code" style="display:none"></div>
@@ -731,6 +746,11 @@ function applyQuizCode() {
   sel.dispatchEvent(new Event('change'));
 }
 
+// Ajouter une ligne vide par défaut dans le tableau des contributeurs
+if (document.getElementById("contributors-body").children.length === 0) {
+  addContributorRow();
+}
+
 // Initialise les recommandations
 updateQuizDataReco();
 updateQuizCodeReco();
@@ -743,7 +763,7 @@ setTimeout(renderFolderTree, 150);
 document.querySelectorAll(".help-icon").forEach(el => {
   const tip = document.getElementById("help-tip");
   el.addEventListener("mouseenter", (e) => {
-    tip.textContent = el.getAttribute("data-tip");
+    tip.innerHTML = el.getAttribute("data-tip");
     tip.classList.add("show");
     const rect = el.getBoundingClientRect();
     let top = rect.top - tip.offsetHeight - 8;
@@ -821,7 +841,7 @@ document.getElementById("code-table-body").addEventListener("change", syncCodeTa
 function addCodeRow() {
   const tbody = document.getElementById("code-table-body");
   const tr = document.createElement("tr");
-  tr.innerHTML = '<td><input type="text" class="ct-id" placeholder="src_analysis"/></td><td><input type="text" class="ct-lang" placeholder="Python 3" list="datalist-langs"/></td><td><input type="text" class="ct-repo" placeholder="github.com/epfl/…"/></td><td><select class="ct-origin" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="generated">Généré</option><option value="reused">Réutilisé</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncCodeTable()" title="Supprimer">✕</button></td>';
+  tr.innerHTML = '<td><input type="text" class="ct-id" placeholder="src_analysis"/></td><td><input type="text" class="ct-lang" placeholder="Python 3" list="datalist-langs"/></td><td><input type="text" class="ct-repo" placeholder="gitlab.epfl.ch/…"/></td><td><select class="ct-origin" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="generated">Généré</option><option value="reused">Réutilisé</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncCodeTable()" title="Supprimer">✕</button></td>';
   tbody.appendChild(tr);
   tr.querySelector(".ct-id").focus();
 }
@@ -893,6 +913,10 @@ function syncReusedTable() {
           <option value="CC-BY-NC-4.0">CC BY-NC 4.0</option>
           <option value="CC-BY-NC-SA-4.0">CC BY-NC-SA 4.0</option>
           <option value="CC-BY-NC-ND-4.0">CC BY-NC-ND 4.0</option>
+          <option value="CC-BY-2.0">CC BY 2.0</option>
+        </optgroup>
+        <optgroup label="Open Database">
+          <option value="ODbL-1.0">ODbL 1.0</option>
         </optgroup>
         <optgroup label="Open Source">
           <option value="MIT">MIT</option>
@@ -1058,6 +1082,7 @@ function syncContributors() {
     firstName: tr.querySelector(".ct-first")?.value || "",
     email: tr.querySelector(".ct-email")?.value || "",
     orcid: tr.querySelector(".ct-orcid")?.value || "",
+    ror: tr.querySelector(".ct-ror")?.value || "",
     role: tr.querySelector(".ct-role")?.value || "",
   })).filter(r => r.lastName || r.firstName);
 }
@@ -1067,7 +1092,7 @@ document.getElementById("contributors-body").addEventListener("change", syncCont
 function addContributorRow() {
   const tbody = document.getElementById("contributors-body");
   const tr = document.createElement("tr");
-  tr.innerHTML = '<td><input type="text" class="ct-last" placeholder="Doe"/></td><td><input type="text" class="ct-first" placeholder="Jane"/></td><td><input type="email" class="ct-email" placeholder="jane.doe@epfl.ch"/></td><td><input type="text" class="ct-orcid" placeholder="0000-0000-0000-0000"/></td><td><select class="ct-role" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="">—</option><option value="Project leader">Project leader</option><option value="Project manager">Project manager</option><option value="Data collector">Data collector</option><option value="Data curator">Data curator</option><option value="Data manager">Data manager</option><option value="Researcher">Researcher</option><option value="Supervisor">Supervisor</option><option value="Contact person">Contact person</option><option value="Producer">Producer</option><option value="Editor">Editor</option><option value="Distributor">Distributor</option><option value="Sponsor">Sponsor</option><option value="Hosting institution">Hosting institution</option><option value="Other">Other</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncContributors()" title="Supprimer">✕</button></td>';
+  tr.innerHTML = '<td><input type="text" class="ct-last" placeholder="Doe"/></td><td><input type="text" class="ct-first" placeholder="Jane"/></td><td><input type="email" class="ct-email" placeholder="jane.doe@epfl.ch"/></td><td><input type="text" class="ct-orcid" placeholder="0000-0000-0000-0000"/></td><td><input type="text" class="ct-ror" placeholder="https://ror.org/..."/></td><td><select class="ct-role" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="">—</option><option value="Project leader">Project leader</option><option value="Principal investigator">Principal investigator</option><option value="Project manager">Project manager</option><option value="Data collector">Data collector</option><option value="Data curator">Data curator</option><option value="Data manager">Data manager</option><option value="Researcher">Researcher</option><option value="Supervisor">Supervisor</option><option value="Contact person">Contact person</option><option value="Producer">Producer</option><option value="Editor">Editor</option><option value="Distributor">Distributor</option><option value="Sponsor">Sponsor</option><option value="Hosting institution">Hosting institution</option><option value="Other">Other</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncContributors()" title="Supprimer">✕</button></td>';
   tbody.appendChild(tr);
   tr.querySelector(".ct-last").focus();
 }
@@ -1108,7 +1133,6 @@ document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
       // Vérifier chaque ligne de code
       codeRows.forEach((r, i) => {
         if (r.identifier && !r.language) errors.push({ id: "code-table", msg: `Ligne ${i+1} : langage requis` });
-        if (r.identifier && !r.repository) errors.push({ id: "code-table", msg: `Ligne ${i+1} : entrepôt requis` });
       });
       return errors;
     },
@@ -1542,6 +1566,7 @@ function startNew() {
   });
   // Vider les tableaux dynamiques
   document.getElementById("contributors-body").innerHTML = "";
+  addContributorRow(); // Ajouter une ligne vide par défaut
   document.getElementById("data-table-body").innerHTML = "";
   document.getElementById("code-table-body").innerHTML = "";
   document.getElementById("reused-table-body").innerHTML = "";
