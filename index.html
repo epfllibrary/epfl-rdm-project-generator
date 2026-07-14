@@ -233,7 +233,6 @@
               </tr>
             </thead>
             <tbody id="data-table-body">
-              <!-- Rows added dynamically via addDataRow() -->
             </tbody>
           </table>
         </div>
@@ -563,11 +562,11 @@ let STATE, getStep, goToStep, nextStep, prevStep,
     makeKeyboardAccessible;
 
 try {
-  const v = "?v=2.0.1";
-  const appMod   = await import("./app.js" + v);
-  const tplMod   = await import("./templates.js" + v);
-  const rulesMod = await import("./rules.js" + v);
-  const i18nMod  = await import("./i18n.js" + v);
+  const _v = Date.now();
+  const appMod   = await import(`./app.js?v=${_v}`);
+  const tplMod   = await import(`./templates.js?v=${_v}`);
+  const rulesMod = await import(`./rules.js?v=${_v}`);
+  const i18nMod  = await import(`./i18n.js?v=${_v}`);
 
   STATE = appMod.STATE;
   getStep = appMod.getStep; goToStep = appMod.goToStep;
@@ -746,10 +745,10 @@ function applyQuizCode() {
   sel.dispatchEvent(new Event('change'));
 }
 
-// Ajouter une ligne vide par défaut dans le tableau des contributeurs
-if (document.getElementById("contributors-body").children.length === 0) {
-  addContributorRow();
-}
+// Ajouter une ligne vide par défaut dans les tableaux
+if (document.getElementById("contributors-body").children.length === 0) addContributorRow();
+if (document.getElementById("data-table-body").children.length === 0) addDataRow();
+if (document.getElementById("code-table-body").children.length === 0) addCodeRow();
 
 // Initialise les recommandations
 updateQuizDataReco();
@@ -1566,9 +1565,11 @@ function startNew() {
   });
   // Vider les tableaux dynamiques
   document.getElementById("contributors-body").innerHTML = "";
-  addContributorRow(); // Ajouter une ligne vide par défaut
+  addContributorRow();
   document.getElementById("data-table-body").innerHTML = "";
+  addDataRow();
   document.getElementById("code-table-body").innerHTML = "";
+  addCodeRow();
   document.getElementById("reused-table-body").innerHTML = "";
   document.getElementById("funder-info").style.display = "none";
   // Vider tous les champs DOM

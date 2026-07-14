@@ -261,7 +261,8 @@ export async function assembleAndDownload(onProgress) {
   const resourceIndex = [];
   const pdfResults = await Promise.allSettled(
     ctx.activeResources.map(async res => {
-      const url = `/assets/resources/${res.file}`;
+      const base = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+      const url = `${base}assets/resources/${res.file}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const buffer = await response.arrayBuffer();
