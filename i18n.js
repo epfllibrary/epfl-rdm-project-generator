@@ -266,6 +266,14 @@ const UI = {
   "onboarding.title":   { fr: "Bienvenue", en: "Welcome" },
   "onboarding.new":     { fr: "Nouveau projet", en: "New project" },
   "onboarding.import":  { fr: "Importer un projet", en: "Import project" },
+  "onboarding.desc1":   { fr: "Ce générateur vous permet de créer en quelques minutes la structure complète d'un projet de recherche, conforme aux bonnes pratiques de gestion des données (RDM) préconisées par l'EPFL.", en: "This generator lets you create in minutes the complete structure of a research project, following the research data management (RDM) best practices recommended by EPFL." },
+  "onboarding.desc2":   { fr: "Répondez aux questions en 3 étapes : projet, données et code, licences. L'application génère automatiquement une archive ZIP contenant :", en: "Answer the questions in 3 steps: project, data & code, licenses. The application automatically generates a ZIP archive containing:" },
+  "onboarding.benefit1":{ fr: "Une arborescence de dossiers organisée (données brutes, traitées, analyses, code, publications, documentation)", en: "An organized folder tree (raw data, processed data, analyses, code, publications, documentation)" },
+  "onboarding.benefit2":{ fr: "Un fichier README complet avec la description du projet, les méthodes, les conventions de nommage et les licences", en: "A complete README file with project description, methods, naming conventions and licenses" },
+  "onboarding.benefit3":{ fr: "Des fichiers de licence adaptés à vos données et à votre code", en: "License files tailored to your data and code" },
+  "onboarding.benefit4":{ fr: "Un plan de gestion des données (DMP) pré-rempli pour vous aider à répondre aux exigences de votre financeur", en: "A pre-filled Data Management Plan (DMP) to help meet your funder's requirements" },
+  "onboarding.benefit5":{ fr: "Des checklists et des ressources EPFL pour vous accompagner tout au long du projet", en: "Checklists and EPFL resources to support you throughout the project" },
+  "onboarding.desc3":   { fr: "Aucune inscription nécessaire. Aucune donnée transmise à un serveur. Tout est généré localement dans votre navigateur.", en: "No registration needed. No data sent to a server. Everything is generated locally in your browser." },
 
   // Options checkboxes (replacing project type / team size)
   "options.title":    { fr: "Options",                     en: "Options" },

@@ -34,8 +34,8 @@
     <div class="sidebar-head">Configuration</div>
     <nav>
       <div class="nav-step active" data-step="0" onclick="navClick(0)">
-        <div class="step-num">🏠</div>
-        <div class="step-label"><strong>Bienvenue</strong></div>
+        <div class="step-num">&#9679;</div>
+        <div class="step-label"><strong data-i18n="onboarding.title">Bienvenue</strong></div>
       </div>
       <div class="nav-step pending" data-step="1" onclick="navClick(1)">
         <div class="step-num">1</div>
@@ -78,26 +78,32 @@
          ÉTAPE 0 — Onboarding / Bienvenue
     ══════════════════════════════════════════════════════════ -->
     <div class="step-panel active" id="step-0">
-      <div style="text-align:center;padding:3rem 1rem;max-width:600px;margin:0 auto">
+      <div style="text-align:center;padding:3rem 1rem;max-width:640px;margin:0 auto">
         <div style="font-family:'Source Serif 4',Georgia,serif;font-size:38px;font-weight:600;color:var(--red);margin-bottom:.5rem">EPFL</div>
-        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:1.5rem">Research Data Management<br>Project Generator</div>
-        <p style="font-size:14px;color:var(--ink-3);line-height:1.7;margin-bottom:2rem">
-          Générez en 3 étapes une archive ZIP contenant la structure complète de votre projet de recherche :
-          dossiers organisés, README, conventions de nommage, licences et plan de gestion des données.
-        </p>
+        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:1.5rem">Research Data Management &mdash; Project Generator</div>
+        <div style="font-size:14px;color:var(--ink-3);line-height:1.8;margin-bottom:2rem;text-align:left">
+          <p style="margin-bottom:1rem" data-i18n="onboarding.desc1">Ce generateur vous permet de creer en quelques minutes la structure complete d'un projet de recherche, conforme aux bonnes pratiques de gestion des donnees (RDM) preconisees par l'EPFL.</p>
+          <p style="margin-bottom:1rem" data-i18n="onboarding.desc2">Repondez aux questions en 3 etapes : projet, donnees et code, licences. L'application genere automatiquement une archive ZIP contenant :</p>
+          <ul style="margin-bottom:1rem;padding-left:1.5rem">
+            <li data-i18n="onboarding.benefit1">Une arborescence de dossiers organisee (donnees brutes, traitees, analyses, code, publications, documentation)</li>
+            <li data-i18n="onboarding.benefit2">Un fichier README complet avec la description du projet, les methodes, les conventions de nommage et les licences</li>
+            <li data-i18n="onboarding.benefit3">Des fichiers de licence adaptes a vos donnees et a votre code</li>
+            <li data-i18n="onboarding.benefit4">Un plan de gestion des donnees (DMP) pre-rempli pour vous aider a repondre aux exigences de votre financeur</li>
+            <li data-i18n="onboarding.benefit5">Des checklists et des ressources EPFL pour vous accompagner tout au long du projet</li>
+          </ul>
+          <p data-i18n="onboarding.desc3">Aucune inscription necessaire. Aucune donnee transmise a un serveur. Tout est genere localement dans votre navigateur.</p>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:440px;margin:0 auto 2rem">
           <button class="btn-next" onclick="nextStep()" style="padding:1.25rem 1.5rem;text-align:center;border-radius:var(--r-xl);background:var(--red);color:#fff;border:none;cursor:pointer;font-size:15px;font-weight:500">
-            <div style="font-size:28px;margin-bottom:6px">+</div>
             <div data-i18n="onboarding.new">Nouveau projet</div>
           </button>
           <button onclick="document.getElementById('import-input').click()" style="padding:1.25rem 1.5rem;text-align:center;border-radius:var(--r-xl);background:var(--bg-card);color:var(--ink-2);border:1px solid var(--line-2);cursor:pointer;font-size:15px;font-weight:500">
-            <div style="font-size:28px;margin-bottom:6px">↻</div>
             <div data-i18n="onboarding.import">Importer un projet</div>
           </button>
         </div>
         <input type="file" id="import-input" accept=".json" style="display:none" onchange="importConfig(event)"/>
         <div style="font-size:12px;color:var(--ink-4);line-height:1.6">
-          <strong>Contact :</strong> <a href="mailto:researchdata@epfl.ch" style="color:var(--teal)">researchdata@epfl.ch</a><br>
+          <a href="mailto:researchdata@epfl.ch" style="color:var(--teal)">researchdata@epfl.ch</a><br>
           <a href="https://go.epfl.ch/rdm" target="_blank" style="color:var(--teal)">go.epfl.ch/rdm</a>
         </div>
       </div>
