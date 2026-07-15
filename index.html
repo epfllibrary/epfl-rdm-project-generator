@@ -34,18 +34,22 @@
     <div class="sidebar-head">Configuration</div>
     <nav>
       <div class="nav-step active" data-step="0" onclick="navClick(0)">
+        <div class="step-num">🏠</div>
+        <div class="step-label"><strong>Bienvenue</strong></div>
+      </div>
+      <div class="nav-step pending" data-step="1" onclick="navClick(1)">
         <div class="step-num">1</div>
         <div class="step-label"><strong data-i18n="nav.0.title">Projet</strong><span data-i18n="nav.0.hint">Infos, financeur</span></div>
       </div>
-      <div class="nav-step pending" data-step="1" onclick="navClick(1)">
+      <div class="nav-step pending" data-step="2" onclick="navClick(2)">
         <div class="step-num">2</div>
         <div class="step-label"><strong data-i18n="nav.1.title">Données & code</strong><span data-i18n="nav.1.hint">Types, nommage, sources</span></div>
       </div>
-      <div class="nav-step pending" data-step="2" onclick="navClick(2)">
+      <div class="nav-step pending" data-step="3" onclick="navClick(3)">
         <div class="step-num">3</div>
         <div class="step-label"><strong data-i18n="nav.2.title">Licences</strong><span data-i18n="nav.2.hint">Licences et compatibilité</span></div>
       </div>
-      <div class="nav-step pending" data-step="3" onclick="navClick(3)">
+      <div class="nav-step pending" data-step="4" onclick="navClick(4)">
         <div class="step-num">↓</div>
         <div class="step-label"><strong data-i18n="nav.3.title">Téléchargement</strong><span data-i18n="nav.3.hint">Aperçu & ZIP</span></div>
       </div>
@@ -71,9 +75,38 @@
   <main class="main">
 
     <!-- ══════════════════════════════════════════════════════════
-         ÉTAPE 1 — Projet & financement (infos + projet + financeur)
+         ÉTAPE 0 — Onboarding / Bienvenue
     ══════════════════════════════════════════════════════════ -->
     <div class="step-panel active" id="step-0">
+      <div style="text-align:center;padding:3rem 1rem;max-width:600px;margin:0 auto">
+        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:38px;font-weight:600;color:var(--red);margin-bottom:.5rem">EPFL</div>
+        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:1.5rem">Research Data Management<br>Project Generator</div>
+        <p style="font-size:14px;color:var(--ink-3);line-height:1.7;margin-bottom:2rem">
+          Générez en 3 étapes une archive ZIP contenant la structure complète de votre projet de recherche :
+          dossiers organisés, README, conventions de nommage, licences et plan de gestion des données.
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:440px;margin:0 auto 2rem">
+          <button class="btn-next" onclick="nextStep()" style="padding:1.25rem 1.5rem;text-align:center;border-radius:var(--r-xl);background:var(--red);color:#fff;border:none;cursor:pointer;font-size:15px;font-weight:500">
+            <div style="font-size:28px;margin-bottom:6px">+</div>
+            <div data-i18n="onboarding.new">Nouveau projet</div>
+          </button>
+          <button onclick="document.getElementById('import-input').click()" style="padding:1.25rem 1.5rem;text-align:center;border-radius:var(--r-xl);background:var(--bg-card);color:var(--ink-2);border:1px solid var(--line-2);cursor:pointer;font-size:15px;font-weight:500">
+            <div style="font-size:28px;margin-bottom:6px">↻</div>
+            <div data-i18n="onboarding.import">Importer un projet</div>
+          </button>
+        </div>
+        <input type="file" id="import-input" accept=".json" style="display:none" onchange="importConfig(event)"/>
+        <div style="font-size:12px;color:var(--ink-4);line-height:1.6">
+          <strong>Contact :</strong> <a href="mailto:researchdata@epfl.ch" style="color:var(--teal)">researchdata@epfl.ch</a><br>
+          <a href="https://go.epfl.ch/rdm" target="_blank" style="color:var(--teal)">go.epfl.ch/rdm</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         ÉTAPE 1 — Projet & financement (infos + projet + financeur)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="step-panel" id="step-1">
       <div class="step-eyebrow" data-i18n="s0.eyebrow">Étape 1 sur 3</div>
       <h1 class="step-title" data-i18n="s0.title">Projet & financement</h1>
       <p class="step-desc" data-i18n="s0.desc">Ces informations seront intégrées dans le README et tous les templates du projet.</p>
@@ -209,7 +242,7 @@
       <!-- ══════════════════════════════════════════════════════════
           ÉTAPE 2 — Données & code
      ══════════════════════════════════════════════════════════ -->
-    <div class="step-panel" id="step-1">
+    <div class="step-panel" id="step-2">
       <div class="step-eyebrow" data-i18n="s1.eyebrow">Étape 2 sur 3</div>
       <h1 class="step-title" data-i18n="s1.title">Données & code</h1>
       <p class="step-desc" data-i18n="s1.desc">Décrivez vos données, choisissez une convention de nommage et les sources réutilisées.</p>
@@ -344,7 +377,7 @@
       <!-- ══════════════════════════════════════════════════════════
           ÉTAPE 3 — Licences
      ══════════════════════════════════════════════════════════ -->
-    <div class="step-panel" id="step-2">
+    <div class="step-panel" id="step-3">
       <div class="step-eyebrow" data-i18n="s2.eyebrow">Étape 3 sur 3</div>
       <h1 class="step-title" data-i18n="s2.title">Licences</h1>
       <p class="step-desc" data-i18n="s2.desc">Choisissez les licences pour vos données et votre code.</p>
@@ -471,7 +504,7 @@
       <!-- ══════════════════════════════════════════════════════════
          ÉTAPE 4 — Résultat
      ══════════════════════════════════════════════════════════ -->
-    <div class="step-panel" id="step-3">
+    <div class="step-panel" id="step-4">
       <div class="result-header">
         <div class="step-eyebrow" data-i18n="s6.eyebrow">Votre projet RDM</div>
         <h1 class="result-title" data-i18n="s6.title">Aperçu & téléchargement</h1>
@@ -532,7 +565,7 @@
       </div>
     </div>
 
-    <!-- step-4 and step-5 removed (no longer used — now 4 steps: 0-3) -->
+    <!-- 5 steps: 0=onboarding, 1=projet, 2=données, 3=licences, 4=résultat -->
 
   </main>
 </div>
@@ -552,6 +585,7 @@ function buildResult()    { _rdm.buildResult   ? _rdm.buildResult()    : console
 function triggerDownload(){ _rdm.triggerDownload ? _rdm.triggerDownload() : console.warn('module not ready'); }
 function startNew()       { _rdm.startNew      ? _rdm.startNew()       : console.warn('module not ready'); }
 function switchLang(lang)  { _rdm.switchLang    ? _rdm.switchLang(lang)  : console.warn('module not ready'); }
+function importConfig(e)   { _rdm.importConfig  ? _rdm.importConfig(e)   : console.warn('module not ready'); }
 </script>
 <script type="module">
 // ── Import avec gestion d'erreur explicite ────────────────────────────────
@@ -616,6 +650,7 @@ _rdm.buildResult   = () => { if (validate()) buildResult(); };
 _rdm.triggerDownload = triggerDownload;
 _rdm.startNew      = startNew;
 _rdm.switchLang  = switchLang;
+_rdm.importConfig = importConfig;
 _rdm.applyQuizData = applyQuizData;
 _rdm.applyQuizCode = applyQuizCode;
 function switchLang(lang) {
@@ -1105,7 +1140,9 @@ document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
 
   // ── Validation par étape ───────────────────────────────────────────────────
   const STEP_RULES = [
-    // Étape 0 — Projet & financement
+    // Étape 0 — Onboarding (pas de validation)
+    () => [],
+    // Étape 1 — Projet & financement
     () => {
       const errors = [];
       if (!STATE.projectName.trim()) errors.push({ id: "proj-name",    msg: t("val.name") });
@@ -1115,7 +1152,7 @@ document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
       if (!STATE.keywords.trim())          errors.push({ id: "proj-keywords", msg: "Mots-clés requis" });
       return errors;
     },
-    // Étape 1 — Données & code
+    // Étape 2 — Données & code
     () => {
       const errors = [];
       const dataRows = Array.isArray(STATE.dataDescription) ? STATE.dataDescription : [];
@@ -1135,7 +1172,7 @@ document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
       });
       return errors;
     },
-    // Étape 2 — Licences (vérifier compatibilité)
+    // Étape 3 — Licences (vérifier compatibilité)
     () => {
       const errors = [];
       const dataLic = STATE.dataLicense || "CC-BY-4.0";
@@ -1160,7 +1197,7 @@ document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
       if (incompatCode > 0) errors.push({ id: "compat-warn-code", msg: `Attention : ${incompatCode} source(s) réutilisée(s) avec licence incompatible avec ${codeLic}. Vérifiez la compatibilité.` });
       return errors;
     },
-    // Étape 3 — Résultat (pas de validation)
+    // Étape 4 — Résultat (pas de validation)
     () => [],
   ];
 
@@ -1239,7 +1276,13 @@ function updateDynamicTexts() {
   const step = getStep();
   const topStep = document.getElementById("top-step");
   if (topStep) {
-    topStep.textContent = step < 3 ? t("topbar.step", step + 1, 3) : t("topbar.result");
+    if (step === 0) {
+      topStep.textContent = "🏠 " + t("onboarding.title");
+    } else if (step < 4) {
+      topStep.textContent = t("topbar.step", step, 3);
+    } else {
+      topStep.textContent = t("topbar.result");
+    }
   }
   // Sidebar nav items — update ALL data-i18n elements (titles + hints)
   document.querySelectorAll(".nav-step").forEach((el, i) => {
@@ -1547,6 +1590,116 @@ function renderFolderTree() {
 }
 _rdm.renderFolderTree = renderFolderTree;
 
+// ── Import config ──────────────────────────────────────────────────────────
+function importConfig(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.state) throw new Error("Invalid config file");
+      // Apply state
+      Object.assign(STATE, data.state);
+      // Reset DOM
+      document.getElementById("contributors-body").innerHTML = "";
+      document.getElementById("data-table-body").innerHTML = "";
+      document.getElementById("code-table-body").innerHTML = "";
+      document.getElementById("reused-table-body").innerHTML = "";
+      // Rebuild dynamic tables with proper row count
+      const contribCount = STATE.contributors?.length || 1;
+      for (let i = 0; i < contribCount; i++) addContributorRow();
+      const dataCount = STATE.dataDescription?.length || 1;
+      for (let i = 0; i < dataCount; i++) addDataRow();
+      const codeCount = STATE.codeDescription?.length || 1;
+      for (let i = 0; i < codeCount; i++) addCodeRow();
+      // Populate contributor values from STATE into DOM
+      const contribRows = document.querySelectorAll("#contributors-body tr");
+      contribRows.forEach((tr, i) => {
+        if (STATE.contributors?.[i]) {
+          const c = STATE.contributors[i];
+          const inputs = tr.querySelectorAll("input, select");
+          if (inputs[0]) inputs[0].value = c.lastName || "";
+          if (inputs[1]) inputs[1].value = c.firstName || "";
+          if (inputs[2]) inputs[2].value = c.email || "";
+          if (inputs[3]) inputs[3].value = c.orcid || "";
+          if (inputs[4]) inputs[4].value = c.ror || "";
+          if (inputs[5]) inputs[5].value = c.role || "";
+        }
+      });
+      // Populate data description values from STATE into DOM
+      const dataRows = document.querySelectorAll("#data-table-body tr");
+      dataRows.forEach((tr, i) => {
+        if (STATE.dataDescription?.[i]) {
+          const d = STATE.dataDescription[i];
+          if (tr.querySelector(".dt-id")) tr.querySelector(".dt-id").value = d.identifier || "";
+          if (tr.querySelector(".dt-type")) tr.querySelector(".dt-type").value = d.type || "";
+          if (tr.querySelector(".dt-format")) tr.querySelector(".dt-format").value = d.format || "";
+          if (tr.querySelector(".dt-volume")) tr.querySelector(".dt-volume").value = d.volume || "";
+          if (tr.querySelector(".dt-sensitive")) tr.querySelector(".dt-sensitive").checked = !!d.sensitive;
+          if (tr.querySelector(".dt-personal")) tr.querySelector(".dt-personal").checked = !!d.personal;
+          if (tr.querySelector(".dt-origin")) tr.querySelector(".dt-origin").value = d.origin || "generated";
+        }
+      });
+      // Populate code description values from STATE into DOM
+      const codeRows = document.querySelectorAll("#code-table-body tr");
+      codeRows.forEach((tr, i) => {
+        if (STATE.codeDescription?.[i]) {
+          const c = STATE.codeDescription[i];
+          if (tr.querySelector(".ct-id")) tr.querySelector(".ct-id").value = c.identifier || "";
+          if (tr.querySelector(".ct-lang")) tr.querySelector(".ct-lang").value = c.language || "";
+          if (tr.querySelector(".ct-repo")) tr.querySelector(".ct-repo").value = c.repository || "";
+          if (tr.querySelector(".ct-origin")) tr.querySelector(".ct-origin").value = c.origin || "generated";
+        }
+      });
+      // Sync back from DOM to STATE (ensures consistency)
+      syncContributors();
+      syncDataTable();
+      syncCodeTable();
+      syncReusedTable();
+      updateLicenseSections();
+      // Set form fields that are bound via bindInput/bindRadio/bindSelect
+      if (document.getElementById("proj-name")) document.getElementById("proj-name").value = STATE.projectName || "";
+      if (document.getElementById("proj-unit")) document.getElementById("proj-unit").value = STATE.unit || "";
+      if (document.getElementById("proj-desc")) document.getElementById("proj-desc").value = STATE.projectDescription || "";
+      if (document.getElementById("proj-method")) document.getElementById("proj-method").value = STATE.methodology || "";
+      if (document.getElementById("proj-keywords")) document.getElementById("proj-keywords").value = STATE.keywords || "";
+      if (document.getElementById("proj-grant")) document.getElementById("proj-grant").value = STATE.grantNumber || "";
+      if (document.getElementById("data-license")) document.getElementById("data-license").value = STATE.dataLicense || "CC-BY-4.0";
+      if (document.getElementById("code-license")) document.getElementById("code-license").value = STATE.codeLicense || "MIT";
+      // Set checkboxes
+      if (document.getElementById("cb-multisite")) document.getElementById("cb-multisite").checked = !!STATE.multisite;
+      if (document.getElementById("cb-humandata")) document.getElementById("cb-humandata").checked = !!STATE.humanData;
+      if (document.getElementById("cb-multiteam")) document.getElementById("cb-multiteam").checked = !!STATE.multiTeam;
+      if (document.getElementById("cb-notebook")) document.getElementById("cb-notebook").checked = !!STATE.generateNotebook;
+      if (document.getElementById("cb-gitignore")) document.getElementById("cb-gitignore").checked = !!STATE.generateGitignore;
+      // Set naming pattern radio
+      const namingRadios = document.querySelectorAll("#naming-radios [data-v]");
+      namingRadios.forEach(el => el.classList.toggle("on", el.dataset.v === (STATE.namingPattern || "rdm")));
+      // Set funder
+      if (STATE.funder) {
+        document.querySelectorAll("#funder-radios [data-v]").forEach(el => {
+          el.classList.toggle("on", el.dataset.v === STATE.funder);
+        });
+        updateFunderUI(STATE.funder);
+      }
+      // Update naming preview
+      updateNamingPreview();
+      // Apply language to all translated elements
+      applyLang();
+      // Navigate to step 1
+      goToStep(1);
+      updateSidebarMax();
+      updateDynamicTexts();
+    } catch(err) {
+      alert("Erreur : fichier de configuration invalide.");
+      console.error("[RDM] Import error:", err);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
 // ── Nouveau projet ─────────────────────────────────────────────────────────
 function startNew() {
   if (!confirm(t("confirm.new"))) return;
@@ -1577,7 +1730,7 @@ function startNew() {
   document.querySelectorAll("input[type=checkbox]").forEach(el => el.checked = false);
   document.querySelectorAll("select").forEach(el => el.selectedIndex = 0);
   document.querySelectorAll(".chip.on, .radio-card.on, .toggle-btn.on, .funder-card.on").forEach(el => el.classList.remove("on"));
-  // Revenir à l'étape 1
+  // Revenir à l'étape 0 (onboarding)
   _maxStep = 0;
   goToStep(0);
   updateSidebarMax();

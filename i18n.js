@@ -262,6 +262,11 @@ const UI = {
   "reused.empty":    { fr: "Aucune source réutilisée.",    en: "No reused sources." },
   "reused.manual":   { fr: "+ Ajouter une source manuelle",en: "+ Add manual source" },
 
+  // Onboarding
+  "onboarding.title":   { fr: "Bienvenue", en: "Welcome" },
+  "onboarding.new":     { fr: "Nouveau projet", en: "New project" },
+  "onboarding.import":  { fr: "Importer un projet", en: "Import project" },
+
   // Options checkboxes (replacing project type / team size)
   "options.title":    { fr: "Options",                     en: "Options" },
   "options.multisite":   { fr: "Multi-site",                 en: "Multi-site" },

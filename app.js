@@ -51,7 +51,7 @@ export const STATE = {
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 let currentStep = 0;
-const TOTAL_STEPS = 4; // 0-2 = form steps, 3 = résultat
+const TOTAL_STEPS = 5; // 0=onboarding, 1=projet, 2=données, 3=licences, 4=résultat
 
 export function getStep() { return currentStep; }
 
@@ -254,6 +254,33 @@ export async function assembleAndDownload(onProgress) {
 
   // ── DMP Starter ──────────────────────────────────────────────────────────────
   file("00_Admin/dmp/DMP_STARTER.md", T.buildDmpStarter(STATE, ctx));
+
+  // ── Export configuration ──────────────────────────────────────────────────────
+  file("rdm_config.json", JSON.stringify({
+    generated: new Date().toISOString(),
+    version: "1.0",
+    state: {
+      projectName: STATE.projectName,
+      unit: STATE.unit,
+      grantNumber: STATE.grantNumber,
+      projectDescription: STATE.projectDescription,
+      methodology: STATE.methodology,
+      keywords: STATE.keywords,
+      funder: STATE.funder,
+      contributors: STATE.contributors,
+      multisite: STATE.multisite,
+      humanData: STATE.humanData,
+      multiTeam: STATE.multiTeam,
+      dataDescription: STATE.dataDescription,
+      codeDescription: STATE.codeDescription,
+      namingPattern: STATE.namingPattern,
+      dataLicense: STATE.dataLicense,
+      codeLicense: STATE.codeLicense,
+      generateNotebook: STATE.generateNotebook,
+      generateGitignore: STATE.generateGitignore,
+      reusedSources: STATE.reusedSources,
+    }
+  }, null, 2));
 
   onProgress?.(80, "Fetching EPFL resources…");
 
