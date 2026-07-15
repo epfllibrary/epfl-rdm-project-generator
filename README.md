@@ -42,14 +42,14 @@ Ouvrir ensuite [http://localhost:8000](http://localhost:8000) dans un navigateur
 
 ## Fonctionnalités
 
-- **Assistant en 3 étapes** : projet → données & code → licences
+- **Assistant en 4 étapes** : bienvenue → projet → données & code → licences
 - **Génération ZIP complète** : arborescence de dossiers, fichiers README, DMP_STARTER, conventions de nommage, licences, checklists
 - **Assistant licence guidé** : quiz interactif qui oriente vers la licence recommandée, avec vérification de compatibilité entre licences
-- **Conventions de nommage** : 4 presets au choix (snake_case, camelCase, kebab-case, dot.case)
-- **Arbre interactif** : dans l'écran résultat, visualisation de l'arborescence avec cases à cocher pour sélectionner les fichiers à inclure
+- **Conventions de nommage** : 4 presets au choix (standard, chronologique, par catégorie, project-type)
+- **Arbre interactif** : dans l'écran résultat, visualisation de l'arborescence avec cases à cocher pour activer ou désactiver des dossiers avant le téléchargement
 - **Sources réutilisées** : déclaration de données ou code existants avec vérification de compatibilité de licence
 - **DMP_STARTER.md pré-rempli** : plan de gestion de données amorcé à partir des informations saisies
-- **Structure de dossiers personnalisable** : activation conditionnelle de dossiers (docs, scripts, notebooks, conf, etc.) selon le type de projet
+- **Structure de dossiers personnalisable** : activez ou désactivez chaque dossier (Admin, Raw Data, Analyses, Results, Code, etc.) avant de télécharger le ZIP
 - **Ressources EPFL intégrées** : guides, modèles et documents officiels inclus dans l'archive
 - **Bilinguisme FR/EN** : interface et fichiers générés disponibles en français ou en anglais
 - **Génération 100 % côté client** : aucune donnée transmise à un serveur, aucune dépendance externe
@@ -58,10 +58,11 @@ Ouvrir ensuite [http://localhost:8000](http://localhost:8000) dans un navigateur
 
 ## Parcours utilisateur
 
-1. **Étape 1 — Projet** : saisir le nom du projet, l'unité EPFL, le numéro de grant, une description, des mots-clés, le financeur, les collaborateurs, et activer les options souhaitées (dossier docs, notebooks, scripts, etc.)
+0. **Bienvenue** : présentation de l'outil, choix entre nouveau projet ou import d'une configuration existante
+1. **Étape 1 — Projet** : saisir le nom du projet, l'unité EPFL, le numéro de grant, une description, des mots-clés, le financeur, les collaborateurs, et activer les options souhaitées
 2. **Étape 2 — Données & code** : décrire les jeux de données et le code produit, choisir une convention de nommage, déclarer les sources réutilisées
 3. **Étape 3 — Licences** : sélectionner les licences pour les données et le code (assistant quiz ou sélecteur manuel), vérifier la compatibilité
-4. **Résultat** : visualiser l'arborescence du projet, cocher/décocher les éléments, puis télécharger l'archive ZIP
+4. **Résultat** : visualiser l'arborescence interactive, cocher/décocher les dossiers, puis télécharger l'archive ZIP
 
 ---
 

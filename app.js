@@ -222,6 +222,9 @@ export async function assembleAndDownload(onProgress) {
   file("README.md", T.buildReadme(STATE, ctx));
   file("NAMING_CONVENTIONS.md", T.buildNamingConventions(STATE, ctx));
   file("LICENSE.md", T.buildLicense(STATE));
+  // Fichier LICENSE séparé avec le texte officiel complet (OSI uniquement)
+  const licensePlain = T.buildLicensePlain(STATE);
+  if (licensePlain) file("LICENSE", licensePlain);
   file("config_rdm.json", T.buildConfig(STATE, ctx));
 
   // ── Templates ───────────────────────────────────────────────────────────────

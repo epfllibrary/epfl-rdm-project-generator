@@ -1004,11 +1004,11 @@ function syncReusedMeta() {
 document.getElementById("reused-table-body")?.addEventListener("input", syncReusedMeta);
 document.getElementById("reused-table-body")?.addEventListener("change", syncReusedMeta);
 
-function scrollToSource(id) {
-  // Try data table first, then code table
-  const dtInput = document.querySelector(`#data-table-body .dt-id[value="${id}"]`);
+function scrollToSource(encodedId) {
+  const id = decodeURIComponent(encodedId);
+  const dtInput = Array.from(document.querySelectorAll("#data-table-body .dt-id")).find(el => el.value === id);
   if (dtInput) { dtInput.closest("tr").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-  const ctInput = document.querySelector(`#code-table-body .ct-id[value="${id}"]`);
+  const ctInput = Array.from(document.querySelectorAll("#code-table-body .ct-id")).find(el => el.value === id);
   if (ctInput) { ctInput.closest("tr").scrollIntoView({ behavior: "smooth", block: "center" }); }
 }
 _rdm.scrollToSource = scrollToSource;
