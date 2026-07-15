@@ -596,10 +596,18 @@ function importConfig(e)   { _rdm.importConfig  ? _rdm.importConfig(e)   : conso
 <script type="module">
 // ── Import avec gestion d'erreur explicite ────────────────────────────────
 let STATE, getStep, goToStep, nextStep, prevStep,
-    bindInput, bindChip, bindToggle, bindRadio, bindCheckbox, bindSelect,
-    assembleAndDownload, buildTreePreview, buildSummary, getDefaultFolders, T, evaluateState,
+    bindInput, bindRadio, bindCheckbox, bindSelect,
+    assembleAndDownload, getDefaultFolders, T, evaluateState,
     t, getLang, setLang, applyLang,
-    makeKeyboardAccessible;
+    makeKeyboardAccessible,
+    validate, clearAllErrors,
+    updateLicenseWarnings, updateLicenseSections, renderFolderTree, updateFunderUI,
+    updateDynamicTexts, updateSidebarMax, updateNamingPreview,
+    buildResult, triggerDownload, showTab, copyEl,
+    importConfig, startNew, switchLang,
+    syncDataTable, syncCodeTable, syncContributors, syncReusedTable, syncReusedMeta,
+    addDataRow, addCodeRow, addContributorRow,
+    updateQuizDataReco, updateQuizCodeReco, applyQuizData, applyQuizCode;
 
 try {
   const _v = Date.now();
@@ -607,18 +615,55 @@ try {
   const tplMod   = await import(`./templates.js?v=${_v}`);
   const rulesMod = await import(`./rules.js?v=${_v}`);
   const i18nMod  = await import(`./i18n.js?v=${_v}`);
+  const frmMod   = await import(`./form.js?v=${_v}`);
+  const uiMod    = await import(`./ui.js?v=${_v}`);
+  const valMod   = await import(`./validation.js?v=${_v}`);
 
   STATE = appMod.STATE;
   getStep = appMod.getStep; goToStep = appMod.goToStep;
   nextStep = appMod.nextStep; prevStep = appMod.prevStep;
-  bindInput = appMod.bindInput; bindChip = appMod.bindChip;
-  bindToggle = appMod.bindToggle; bindRadio = appMod.bindRadio;
-  bindCheckbox = appMod.bindCheckbox; bindSelect = appMod.bindSelect;
   assembleAndDownload = appMod.assembleAndDownload;
-  buildTreePreview = appMod.buildTreePreview;
-  buildSummary = appMod.buildSummary;
   getDefaultFolders = appMod.getDefaultFolders;
   makeKeyboardAccessible = appMod.makeKeyboardAccessible;
+
+  // form.js
+  bindInput = frmMod.bindInput;
+  bindRadio = frmMod.bindRadio;
+  bindCheckbox = frmMod.bindCheckbox;
+  bindSelect = frmMod.bindSelect;
+  syncDataTable = frmMod.syncDataTable;
+  syncCodeTable = frmMod.syncCodeTable;
+  syncContributors = frmMod.syncContributors;
+  syncReusedTable = frmMod.syncReusedTable;
+  syncReusedMeta = frmMod.syncReusedMeta;
+  addDataRow = frmMod.addDataRow;
+  addCodeRow = frmMod.addCodeRow;
+  addContributorRow = frmMod.addContributorRow;
+  importConfig = frmMod.importConfig;
+  startNew = frmMod.startNew;
+  switchLang = frmMod.switchLang;
+
+  // ui.js
+  updateLicenseWarnings = uiMod.updateLicenseWarnings;
+  updateLicenseSections = uiMod.updateLicenseSections;
+  renderFolderTree = uiMod.renderFolderTree;
+  updateFunderUI = uiMod.updateFunderUI;
+  updateDynamicTexts = uiMod.updateDynamicTexts;
+  updateSidebarMax = uiMod.updateSidebarMax;
+  updateNamingPreview = uiMod.updateNamingPreview;
+  updateQuizDataReco = uiMod.updateQuizDataReco;
+  updateQuizCodeReco = uiMod.updateQuizCodeReco;
+  applyQuizData = uiMod.applyQuizData;
+  applyQuizCode = uiMod.applyQuizCode;
+  buildResult = uiMod.buildResult;
+  triggerDownload = uiMod.triggerDownload;
+  showTab = uiMod.showTab;
+  copyEl = uiMod.copyEl;
+
+  // validation.js
+  validate = valMod.validate;
+  clearAllErrors = valMod.clearAllErrors;
+
   T = tplMod;
   evaluateState = rulesMod.evaluateState;
   // i18n
@@ -637,19 +682,11 @@ try {
   throw err;
 }
 
-// ── Helper: échapper HTML pour prévenir XSS ────────────────────────────────
-function escapeHtml(str) {
-  if (str === null || str === undefined) return "";
-  const div = document.createElement('div');
-  div.textContent = String(str);
-  return div.innerHTML;
-}
-
 // ── Connecter les stubs globaux ────────────────────────────────────────────
-_rdm.nextStep      = () => { if (validate()) { nextStep(); _maxStep = Math.max(_maxStep, getStep()); updateSidebarMax(); updateDynamicTexts(); } };
+_rdm.nextStep      = () => { if (validate()) { nextStep(); window._rdm._maxStep = Math.max(window._rdm._maxStep || 0, getStep()); updateSidebarMax(); updateDynamicTexts(); } };
 _rdm.prevStep      = () => { prevStep(); updateSidebarMax(); updateDynamicTexts(); };
 _rdm.goToStep      = (n) => goToStep(n);
-_rdm.navClick      = (i) => { if (i <= _maxStep) { goToStep(i); updateSidebarMax(); updateDynamicTexts(); } };
+_rdm.navClick      = (i) => { if (i <= (window._rdm._maxStep || 0)) { goToStep(i); updateSidebarMax(); updateDynamicTexts(); } };
 _rdm.showTab       = showTab;
 _rdm.copyEl        = copyEl;
 _rdm.buildResult   = () => { if (validate()) buildResult(); };
@@ -659,26 +696,24 @@ _rdm.switchLang  = switchLang;
 _rdm.importConfig = importConfig;
 _rdm.applyQuizData = applyQuizData;
 _rdm.applyQuizCode = applyQuizCode;
-function switchLang(lang) {
-  setLang(lang);
-  applyLang();
-  updateDynamicTexts();
-  document.getElementById("lang-fr").classList.toggle("active", lang === "fr");
-  document.getElementById("lang-en").classList.toggle("active", lang === "en");
-}
-
+_rdm.updateLicenseWarnings = updateLicenseWarnings;
+_rdm.updateLicenseSections = updateLicenseSections;
+_rdm.renderFolderTree = renderFolderTree;
+_rdm.updateFunderUI = updateFunderUI;
+_rdm.updateDynamicTexts = updateDynamicTexts;
+_rdm.updateSidebarMax = updateSidebarMax;
+_rdm.updateNamingPreview = updateNamingPreview;
+_rdm.syncDataTable = syncDataTable;
+_rdm.syncCodeTable = syncCodeTable;
+_rdm.syncContributors = syncContributors;
+_rdm.syncReusedTable = syncReusedTable;
+_rdm.addDataRow = addDataRow;
+_rdm.addCodeRow = addCodeRow;
+_rdm.addContributorRow = addContributorRow;
+_rdm.clearAllErrors = clearAllErrors;
 
 // ── maxStep : étape la plus haute atteinte (pour la sidebar) ──────────────
-let _maxStep = 0;
-
-function updateSidebarMax() {
-  const cur = getStep();
-  document.querySelectorAll(".nav-step").forEach((el, i) => {
-    el.classList.toggle("done",    i < cur || (i <= _maxStep && i !== cur));
-    el.classList.toggle("active",  i === cur);
-    el.classList.toggle("pending", i > _maxStep && i !== cur);
-  });
-}
+window._rdm._maxStep = 0;
 
 // ── Binding formulaire ─────────────────────────────────────────────────────
 bindInput("proj-name", "projectName");
@@ -704,28 +739,7 @@ bindCheckbox("cb-gitignore", "generateGitignore");
 // ── Accessibilité clavier pour les composants custom ──────────────────────
 makeKeyboardAccessible("funder-radios");
 
-// ── License quiz logic ────────────────────────────────────────────────────────
-// Data license mapping
-const DATA_LICENSE_MAP = {
-  'yes_yes': 'CC-BY-4.0',
-  'yes_sa':  'CC-BY-SA-4.0',
-  'yes_no':  'CC-BY-ND-4.0',
-  'no_yes':  'CC-BY-NC-4.0',
-  'no_sa':   'CC-BY-NC-SA-4.0',
-  'no_no':   'CC-BY-NC-ND-4.0',
-};
-
-function updateQuizDataReco() {
-  const q1 = document.querySelector("#quiz-data-q1 .on")?.dataset?.v || 'any';
-  const q2 = document.querySelector("#quiz-data-q2 .on")?.dataset?.v || 'yes';
-  let license = 'CC0-1.0';
-  if (q1 !== 'any') {
-    license = DATA_LICENSE_MAP[`${q1}_${q2}`] || 'CC-BY-4.0';
-  }
-  document.getElementById('quiz-data-reco').textContent = license;
-}
-
-// Bind quiz-data toggles
+// ── License quiz event listeners ─────────────────────────────────────────────
 document.querySelectorAll("#quiz-data-q1 [data-v], #quiz-data-q2 [data-v]").forEach(el => {
   el.addEventListener("click", () => {
     const parent = el.parentElement;
@@ -735,41 +749,6 @@ document.querySelectorAll("#quiz-data-q1 [data-v], #quiz-data-q2 [data-v]").forE
   });
 });
 
-function applyQuizData() {
-  const reco = document.getElementById('quiz-data-reco').textContent;
-  const sel = document.getElementById('data-license');
-  sel.value = reco;
-  sel.dispatchEvent(new Event('change'));
-}
-
-// Code license mapping
-function updateQuizCodeReco() {
-  const q1 = document.querySelector("#quiz-code-q1 .on")?.dataset?.v || 'os';
-  const patents = document.getElementById('quiz-code-patents');
-  const q2el = document.getElementById('quiz-code-q2');
-  const q3el = document.getElementById('quiz-code-q3');
-
-  // Show/hide follow-ups
-  if (q1 === 'closed') {
-    document.getElementById('quiz-code-followup').style.display = 'none';
-    document.getElementById('quiz-code-reco').textContent = 'none';
-    return;
-  } else {
-    document.getElementById('quiz-code-followup').style.display = 'block';
-  }
-
-  const q2 = document.querySelector("#quiz-code-q2 .on")?.dataset?.v || 'perm';
-  if (q2 === 'copyleft') {
-    patents.style.display = 'none';
-    document.getElementById('quiz-code-reco').textContent = 'GPL-3.0';
-  } else {
-    patents.style.display = 'block';
-    const q3 = document.querySelector("#quiz-code-q3 .on")?.dataset?.v || 'no';
-    document.getElementById('quiz-code-reco').textContent = q3 === 'yes' ? 'Apache-2.0' : 'MIT';
-  }
-}
-
-// Bind quiz-code toggles
 document.querySelectorAll("#quiz-code-q1 [data-v], #quiz-code-q2 [data-v], #quiz-code-q3 [data-v]").forEach(el => {
   el.addEventListener("click", () => {
     const parent = el.parentElement;
@@ -779,25 +758,37 @@ document.querySelectorAll("#quiz-code-q1 [data-v], #quiz-code-q2 [data-v], #quiz
   });
 });
 
-function applyQuizCode() {
-  const reco = document.getElementById('quiz-code-reco').textContent;
-  const sel = document.getElementById('code-license');
-  sel.value = reco;
-  sel.dispatchEvent(new Event('change'));
+// ── Data-table event listeners ────────────────────────────────────────────
+document.getElementById("data-table-body").addEventListener("input", syncDataTable);
+document.getElementById("data-table-body").addEventListener("change", syncDataTable);
+document.getElementById("code-table-body").addEventListener("input", syncCodeTable);
+document.getElementById("code-table-body").addEventListener("change", syncCodeTable);
+document.getElementById("contributors-body").addEventListener("input", syncContributors);
+document.getElementById("contributors-body").addEventListener("change", syncContributors);
+document.getElementById("reused-table-body")?.addEventListener("input", syncReusedMeta);
+document.getElementById("reused-table-body")?.addEventListener("change", syncReusedMeta);
+
+// ── Funder radio events ───────────────────────────────────────────────────
+document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
+  card.addEventListener("click", () => updateFunderUI(card.dataset.v));
+});
+
+// ── Naming preview update ─────────────────────────────────────────────────
+document.querySelectorAll("#naming-radios [data-v]").forEach(card => {
+  card.addEventListener("click", () => setTimeout(updateNamingPreview, 50));
+});
+
+// ── Initialisation ─────────────────────────────────────────────────────────
+function init() {
+  if (document.getElementById("contributors-body").children.length === 0) addContributorRow();
+  if (document.getElementById("data-table-body").children.length === 0) addDataRow();
+  if (document.getElementById("code-table-body").children.length === 0) addCodeRow();
+  updateQuizDataReco();
+  updateQuizCodeReco();
+  setTimeout(updateLicenseWarnings, 100);
+  setTimeout(renderFolderTree, 150);
 }
-
-// Ajouter une ligne vide par défaut dans les tableaux
-if (document.getElementById("contributors-body").children.length === 0) addContributorRow();
-if (document.getElementById("data-table-body").children.length === 0) addDataRow();
-if (document.getElementById("code-table-body").children.length === 0) addCodeRow();
-
-// Initialise les recommandations
-updateQuizDataReco();
-updateQuizCodeReco();
-// Initialiser les warnings de compatibilité
-setTimeout(updateLicenseWarnings, 100);
-// Initialiser l'arborescence personnalisable
-setTimeout(renderFolderTree, 150);
+init();
 
 // ── Help tooltips ──────────────────────────────────────────────────────────
 document.querySelectorAll(".help-icon").forEach(el => {
@@ -808,7 +799,7 @@ document.querySelectorAll(".help-icon").forEach(el => {
     const rect = el.getBoundingClientRect();
     let top = rect.top - tip.offsetHeight - 8;
     let left = rect.left + rect.width / 2 - tip.offsetWidth / 2;
-    if (top < 4) top = rect.bottom + 8; // fallback en dessous si pas de place
+    if (top < 4) top = rect.bottom + 8;
     if (left < 4) left = 4;
     if (left + tip.offsetWidth > window.innerWidth - 4) left = window.innerWidth - tip.offsetWidth - 4;
     tip.style.top = top + "px";
@@ -816,932 +807,6 @@ document.querySelectorAll(".help-icon").forEach(el => {
   });
   el.addEventListener("mouseleave", () => { tip.classList.remove("show"); });
 });
-
-// ── Naming convention preview ──────────────────────────────────────────────
-function updateNamingPreview() {
-  const ex = T.generateNamingExamples(STATE);
-  const el = document.getElementById("naming-preview-example");
-  if (el && ex.raw) el.textContent = ex.raw;
-}
-// Update preview when naming pattern changes
-document.querySelectorAll("#naming-radios [data-v]").forEach(card => {
-  card.addEventListener("click", () => setTimeout(updateNamingPreview, 50));
-});
-
-
-
-// ── Data table sync ────────────────────────────────────────────────────────
-function syncDataTable() {
-  const rows = document.querySelectorAll("#data-table-body tr");
-  STATE.dataDescription = Array.from(rows).map(tr => ({
-    type: tr.querySelector(".dt-type")?.value || "",
-    format: tr.querySelector(".dt-format")?.value || "",
-    volume: tr.querySelector(".dt-volume")?.value || "",
-    sensitive: tr.querySelector(".dt-sensitive")?.checked || false,
-    personal: tr.querySelector(".dt-personal")?.checked || false,
-    identifier: tr.querySelector(".dt-id")?.value || "",
-    origin: tr.querySelector(".dt-origin")?.value || "generated",
-  })).filter(r => r.type || r.identifier);
-  updateLicenseSections();
-  syncReusedTable();
-  renderFolderTree();
-}
-document.getElementById("data-table-body").addEventListener("input", syncDataTable);
-document.getElementById("data-table-body").addEventListener("change", syncDataTable);
-
-function addDataRow() {
-  const tbody = document.getElementById("data-table-body");
-  const tr = document.createElement("tr");
-  tr.innerHTML = '<td><input type="text" class="dt-id" placeholder="tabular_data"/></td><td><input type="text" class="dt-type" placeholder="Choisissez ou tapez…" list="datalist-types"/></td><td><input type="text" class="dt-format" placeholder="CSV, Parquet"/></td><td><input type="text" class="dt-volume" placeholder="~500 Go"/></td><td style="text-align:center"><input type="checkbox" class="dt-sensitive"/></td><td style="text-align:center"><input type="checkbox" class="dt-personal"/></td><td><select class="dt-origin" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="generated">Généré</option><option value="reused">Réutilisé</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncDataTable()" title="Supprimer">✕</button></td>';
-  tbody.appendChild(tr);
-  tr.querySelector(".dt-id").focus();
-}
-_rdm.addDataRow = addDataRow;
-_rdm.syncDataTable = syncDataTable;
-
-// ── Code table sync ──
-function syncCodeTable() {
-  const rows = document.querySelectorAll("#code-table-body tr");
-  STATE.codeDescription = Array.from(rows).map(tr => ({
-    language: tr.querySelector(".ct-lang")?.value || "",
-    repository: tr.querySelector(".ct-repo")?.value || "",
-    identifier: tr.querySelector(".ct-id")?.value || "",
-    origin: tr.querySelector(".ct-origin")?.value || "generated",
-  })).filter(r => r.identifier);
-  updateLicenseSections();
-  syncReusedTable();
-  const hasGeneratedCode = STATE.codeDescription.some(r => r.origin === "generated");
-  const opts = document.getElementById("code-options");
-  if (opts) opts.style.display = hasGeneratedCode ? "block" : "none";
-  renderFolderTree();
-}
-document.getElementById("code-table-body").addEventListener("input", syncCodeTable);
-document.getElementById("code-table-body").addEventListener("change", syncCodeTable);
-
-function addCodeRow() {
-  const tbody = document.getElementById("code-table-body");
-  const tr = document.createElement("tr");
-  tr.innerHTML = '<td><input type="text" class="ct-id" placeholder="src_analysis"/></td><td><input type="text" class="ct-lang" placeholder="Python 3" list="datalist-langs"/></td><td><input type="text" class="ct-repo" placeholder="gitlab.epfl.ch/…"/></td><td><select class="ct-origin" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="generated">Généré</option><option value="reused">Réutilisé</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncCodeTable()" title="Supprimer">✕</button></td>';
-  tbody.appendChild(tr);
-  tr.querySelector(".ct-id").focus();
-}
-_rdm.addCodeRow = addCodeRow;
-_rdm.syncCodeTable = syncCodeTable;
-
-// ── Reused sources sync ──
-function syncReusedTable() {
-  const tbody = document.getElementById("reused-table-body");
-  const section = document.getElementById("reused-section");
-  const empty = document.getElementById("reused-empty");
-  if (!tbody) return;
-  // Collect reused entries from data and code tables
-  const reused = {};
-  // From dataDescription — merge existing STATE fields but always set sourceTable="data"
-  STATE.dataDescription.forEach(row => {
-    if (row.origin === "reused" && row.identifier) {
-      reused[row.identifier] = {
-        doi: "", link: "", sourceLicense: "CC-BY-4.0", citation: "",
-        sourceTable: "data",
-        ...(STATE.reusedSources[row.identifier] || {}),
-        sourceTable: "data",  // ensure data sources stay tagged as data
-      };
-    }
-  });
-  // From codeDescription — merge existing STATE fields but always set sourceTable="code"
-  STATE.codeDescription.forEach(row => {
-    if (row.origin === "reused" && row.identifier) {
-      reused[row.identifier] = {
-        doi: "", link: "", sourceLicense: "MIT", citation: "",
-        sourceTable: "code",
-        ...(STATE.reusedSources[row.identifier] || {}),
-        sourceTable: "code",  // ensure code sources stay tagged as code
-      };
-    }
-  });
-  // Add manually added sources (keep their original sourceTable, default "data")
-  Object.entries(STATE.reusedSources).forEach(([id, data]) => {
-    if (data.manual) reused[id] = data;
-  });
-  STATE.reusedSources = reused;
-  
-  // Render
-  const ids = Object.keys(reused);
-  if (ids.length === 0) {
-    tbody.innerHTML = "";
-    if (section) section.style.display = "none";
-    return;
-  }
-  if (section) section.style.display = "block";
-  if (empty) empty.style.display = "none";
-  tbody.innerHTML = ids.map(id => {
-    const r = reused[id];
-    const icon = r.sourceTable === "code" ? "[Code]" : "[Data]";
-    const safeId = escapeHtml(id);
-    const safeDoi = escapeHtml(r.doi || "");
-    const safeLink = escapeHtml(r.link || "");
-    const safeCitation = escapeHtml(r.citation || "");
-    return `<tr>
-      <td><span style="cursor:pointer;color:var(--teal);text-decoration:underline" onclick="_rdm.scrollToSource('${safeId}')" title="Voir la source" data-id="${safeId}">${icon} ${safeId}</span></td>
-      <td><input type="text" class="rs-doi" value="${safeDoi}" placeholder="10.5281/zenodo.…" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"/></td>
-      <td><input type="text" class="rs-link" value="${safeLink}" placeholder="https://github.com/…" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"/></td>
-      <td><select class="rs-license" style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)">
-        <optgroup label="Creative Commons">
-          <option value="CC0-1.0">CC0 1.0</option>
-          <option value="CC-BY-4.0">CC BY 4.0</option>
-          <option value="CC-BY-SA-4.0">CC BY-SA 4.0</option>
-          <option value="CC-BY-ND-4.0">CC BY-ND 4.0</option>
-          <option value="CC-BY-NC-4.0">CC BY-NC 4.0</option>
-          <option value="CC-BY-NC-SA-4.0">CC BY-NC-SA 4.0</option>
-          <option value="CC-BY-NC-ND-4.0">CC BY-NC-ND 4.0</option>
-          <option value="CC-BY-2.0">CC BY 2.0</option>
-        </optgroup>
-        <optgroup label="Open Database">
-          <option value="ODbL-1.0">ODbL 1.0</option>
-        </optgroup>
-        <optgroup label="Open Source">
-          <option value="MIT">MIT</option>
-          <option value="Apache-2.0">Apache 2.0</option>
-          <option value="GPL-3.0">GPL v3</option>
-          <option value="BSD-3-Clause">BSD 3-Clause</option>
-        </optgroup>
-        <option value="restricted">Accès restreint</option>
-      </select></td>
-      <td><input type="text" class="rs-citation" value="${safeCitation}" placeholder="Auteur(s) (année). Titre." style="width:100%;padding:4px 6px;font-size:11px;border:1px solid var(--line-2);border-radius:var(--r)"/></td>
-      <td><button class="btn-icon" onclick="_rdm.removeReusedSource('${safeId}')" title="Supprimer">✕</button></td>
-    </tr>`;
-  }).join("");
-  
-  // Set license values from STATE (in case they were modified via syncReusedMeta)
-  tbody.querySelectorAll("tr").forEach(tr => {
-    const idSpan = tr.querySelector("[data-id]");
-    const rowSel = tr.querySelector(".rs-license");
-    if (idSpan && rowSel) {
-      const key = idSpan.dataset.id;
-      if (reused[key]?.sourceLicense) rowSel.value = reused[key].sourceLicense;
-    }
-  });
-  
-  updateLicenseWarnings();
-}
-_rdm.syncReusedTable = syncReusedTable;
-
-function syncReusedMeta() {
-  const rows = document.querySelectorAll("#reused-table-body tr");
-  rows.forEach(tr => {
-    const idSpan = tr.querySelector("[data-id]");
-    if (!idSpan) return;
-    const id = idSpan.dataset.id;
-    if (!id) return;
-    STATE.reusedSources[id] = STATE.reusedSources[id] || {};
-    STATE.reusedSources[id].doi = tr.querySelector(".rs-doi")?.value || "";
-    STATE.reusedSources[id].link = tr.querySelector(".rs-link")?.value || "";
-    STATE.reusedSources[id].sourceLicense = tr.querySelector(".rs-license")?.value || "CC-BY-4.0";
-    STATE.reusedSources[id].citation = tr.querySelector(".rs-citation")?.value || "";
-  });
-  // Update compatibility warnings after saving meta
-  updateLicenseWarnings();
-}
-document.getElementById("reused-table-body")?.addEventListener("input", syncReusedMeta);
-document.getElementById("reused-table-body")?.addEventListener("change", syncReusedMeta);
-
-function scrollToSource(encodedId) {
-  const id = decodeURIComponent(encodedId);
-  const dtInput = Array.from(document.querySelectorAll("#data-table-body .dt-id")).find(el => el.value === id);
-  if (dtInput) { dtInput.closest("tr").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-  const ctInput = Array.from(document.querySelectorAll("#code-table-body .ct-id")).find(el => el.value === id);
-  if (ctInput) { ctInput.closest("tr").scrollIntoView({ behavior: "smooth", block: "center" }); }
-}
-_rdm.scrollToSource = scrollToSource;
-
-function removeReusedSource(id) {
-  delete STATE.reusedSources[id];
-  // Also update the origin in the corresponding table row
-  const dtInput = document.querySelector(`#data-table-body .dt-id[value="${id}"]`);
-  if (dtInput) { const sel = dtInput.closest("tr").querySelector(".dt-origin"); if (sel) sel.value = "generated"; }
-  const ctInput = document.querySelector(`#code-table-body .ct-id[value="${id}"]`);
-  if (ctInput) { const sel = ctInput.closest("tr").querySelector(".ct-origin"); if (sel) sel.value = "generated"; }
-  syncDataTable();
-  syncCodeTable();
-  syncReusedTable();
-}
-_rdm.removeReusedSource = removeReusedSource;
-
-function addManualSource() {
-  const id = "src_" + Date.now().toString(36);
-  STATE.reusedSources[id] = { doi: "", link: "", sourceLicense: "CC-BY-4.0", citation: "", sourceTable: "data", manual: true };
-  syncReusedTable();
-  setTimeout(() => {
-    const input = document.querySelector("#reused-table-body tr:last-child .rs-doi");
-    if (input) input.focus();
-  }, 100);
-}
-_rdm.addManualSource = addManualSource;
-
-// ── License compatibility warnings ──
-function updateLicenseWarnings() {
-  const dataLic = document.getElementById("data-license")?.value || "CC-BY-4.0";
-  const codeLic = document.getElementById("code-license")?.value || "MIT";
-  const strongCopyleft = ["GPL-2.0", "GPL-3.0", "AGPL-3.0"];
-  const ncLicenses = ["CC-BY-NC-4.0", "CC-BY-NC-SA-4.0", "CC-BY-NC-ND-4.0"];
-  const restricted = ["restricted"];
-  
-  let dataWarnings = [], codeWarnings = [];
-  let dataCompatItems = [], codeCompatItems = [];
-  
-  Object.entries(STATE.reusedSources).forEach(([id, r]) => {
-    if (!r.sourceLicense) return;
-    const isData = r.sourceTable === "data" || r.sourceTable === "data_manual";
-    const srcLic = r.sourceLicense;
-    let status = "Compatible";
-    let isIncompat = false;
-    
-    if (isData) {
-      if (ncLicenses.includes(srcLic) && dataLic === "CC-BY-4.0") { status = "Incompatible avec CC BY 4.0"; isIncompat = true; dataWarnings.push(id); }
-      else if (restricted.includes(srcLic) && !restricted.includes(dataLic)) { status = "Incompatible (accès restreint)"; isIncompat = true; dataWarnings.push(id); }
-      dataCompatItems.push({ id, lic: srcLic, status, isIncompat });
-    } else {
-      if (strongCopyleft.includes(srcLic) && !strongCopyleft.includes(codeLic)) { status = "Incompatible avec " + codeLic; isIncompat = true; codeWarnings.push(id); }
-      else if (restricted.includes(srcLic) && !restricted.includes(codeLic)) { status = "Incompatible (accès restreint)"; isIncompat = true; codeWarnings.push(id); }
-      codeCompatItems.push({ id, lic: srcLic, status, isIncompat });
-    }
-  });
-  
-  // Update warning boxes
-  const dataWarn = document.getElementById("compat-warn-data");
-  const codeWarn = document.getElementById("compat-warn-code");
-  if (dataWarn) {
-    dataWarn.style.display = dataWarnings.length ? "block" : "none";
-    dataWarn.innerHTML = dataWarnings.length ? `Attention : ${dataWarnings.length} source(s) réutilisée(s) incompatible(s). Vérifiez le tableau des sources ci-dessous.` : "";
-  }
-  if (codeWarn) {
-    codeWarn.style.display = codeWarnings.length ? "block" : "none";
-    codeWarn.innerHTML = codeWarnings.length ? `Attention : ${codeWarnings.length} source(s) réutilisée(s) incompatible(s). Vérifiez le tableau des sources ci-dessous.` : "";
-  }
-  
-  // Update reused sources summary table
-  const allItems = [...dataCompatItems, ...codeCompatItems];
-  const summaryBody = document.getElementById("reused-summary-body");
-  const summaryEmpty = document.getElementById("reused-summary-empty");
-  const summaryWrap = document.getElementById("reused-summary-table-wrap");
-  if (!summaryBody) return;
-  
-  if (allItems.length === 0) {
-    summaryBody.innerHTML = "";
-    if (summaryEmpty) summaryEmpty.style.display = "block";
-    if (summaryWrap) summaryWrap.style.display = "none";
-    return;
-  }
-  if (summaryEmpty) summaryEmpty.style.display = "none";
-  if (summaryWrap) summaryWrap.style.display = "block";
-  
-  summaryBody.innerHTML = allItems.map(item => `
-    <tr>
-      <td>${escapeHtml(item.id)}</td>
-      <td>${escapeHtml(item.lic)}</td>
-      <td style="color:${item.isIncompat ? 'var(--red)' : 'var(--teal)'}">${escapeHtml(item.status)}</td>
-    </tr>
-  `).join("");
-}
-_rdm.updateLicenseWarnings = updateLicenseWarnings;
-
-// ── License sections visibility ──
-function updateLicenseSections() {
-  const hasData = STATE.dataDescription.length > 0;
-  const hasCode = STATE.codeDescription.length > 0;
-  const dataSec = document.getElementById("data-license-section");
-  const codeSec = document.getElementById("code-license-section");
-  if (dataSec) dataSec.style.display = hasData ? "block" : "none";
-  if (codeSec) codeSec.style.display = hasCode ? "block" : "none";
-}
-
-// ── Contributors sync ──
-function syncContributors() {
-  const rows = document.querySelectorAll("#contributors-body tr");
-  STATE.contributors = Array.from(rows).map(tr => ({
-    lastName: tr.querySelector(".ct-last")?.value || "",
-    firstName: tr.querySelector(".ct-first")?.value || "",
-    email: tr.querySelector(".ct-email")?.value || "",
-    orcid: tr.querySelector(".ct-orcid")?.value || "",
-    ror: tr.querySelector(".ct-ror")?.value || "",
-    role: tr.querySelector(".ct-role")?.value || "",
-  })).filter(r => r.lastName || r.firstName);
-}
-document.getElementById("contributors-body").addEventListener("input", syncContributors);
-document.getElementById("contributors-body").addEventListener("change", syncContributors);
-
-function addContributorRow() {
-  const tbody = document.getElementById("contributors-body");
-  const tr = document.createElement("tr");
-  tr.innerHTML = '<td><input type="text" class="ct-last" placeholder="Doe"/></td><td><input type="text" class="ct-first" placeholder="Jane"/></td><td><input type="email" class="ct-email" placeholder="jane.doe@epfl.ch"/></td><td><input type="text" class="ct-orcid" placeholder="0000-0000-0000-0000"/></td><td><input type="text" class="ct-ror" placeholder="https://ror.org/..."/></td><td><select class="ct-role" style="width:100%;padding:6px 8px;font-size:12px;border:1px solid var(--line-2);border-radius:var(--r)"><option value="">—</option><option value="Project leader">Project leader</option><option value="Principal investigator">Principal investigator</option><option value="Project manager">Project manager</option><option value="Data collector">Data collector</option><option value="Data curator">Data curator</option><option value="Data manager">Data manager</option><option value="Researcher">Researcher</option><option value="Supervisor">Supervisor</option><option value="Contact person">Contact person</option><option value="Producer">Producer</option><option value="Editor">Editor</option><option value="Distributor">Distributor</option><option value="Sponsor">Sponsor</option><option value="Hosting institution">Hosting institution</option><option value="Other">Other</option></select></td><td><button class="btn-icon" onclick="this.closest(\'tr\').remove();_rdm.syncContributors()" title="Supprimer">✕</button></td>';
-  tbody.appendChild(tr);
-  tr.querySelector(".ct-last").focus();
-}
-_rdm.addContributorRow = addContributorRow;
-_rdm.syncContributors = syncContributors;
-
-// ── Funder — afficher les exigences
-document.querySelectorAll("#funder-radios [data-v]").forEach(card => {
-  card.addEventListener("click", () => updateFunderUI(card.dataset.v));
-});
-
-  // ── Validation par étape ───────────────────────────────────────────────────
-  const STEP_RULES = [
-    // Étape 0 — Onboarding (pas de validation)
-    () => [],
-    // Étape 1 — Projet & financement
-    () => {
-      const errors = [];
-      if (!STATE.projectName.trim()) errors.push({ id: "proj-name",    msg: t("val.name") });
-      if (!STATE.unit.trim())        errors.push({ id: "proj-unit",    msg: t("val.unit") });
-      if (!STATE.funder)             errors.push({ id: "funder-radios", msg: t("val.funder") });
-      if (!STATE.projectDescription.trim()) errors.push({ id: "proj-desc", msg: "Description requise" });
-      if (!STATE.keywords.trim())          errors.push({ id: "proj-keywords", msg: "Mots-clés requis" });
-      return errors;
-    },
-    // Étape 2 — Données & code
-    () => {
-      const errors = [];
-      const dataRows = Array.isArray(STATE.dataDescription) ? STATE.dataDescription : [];
-      const codeRows = Array.isArray(STATE.codeDescription) ? STATE.codeDescription : [];
-      if (!dataRows.length && !codeRows.length) {
-        errors.push({ id: "data-table", msg: t("val.datatypes") });
-      }
-      // Vérifier chaque ligne de données
-      dataRows.forEach((r, i) => {
-        if (r.type && !r.identifier) errors.push({ id: "data-table", msg: `Ligne ${i+1} : identifiant requis` });
-        if (r.type && !r.format)  errors.push({ id: "data-table", msg: `Ligne ${i+1} : format requis` });
-        if (r.type && !r.volume)  errors.push({ id: "data-table", msg: `Ligne ${i+1} : volume requis` });
-      });
-      // Vérifier chaque ligne de code
-      codeRows.forEach((r, i) => {
-        if (r.identifier && !r.language) errors.push({ id: "code-table", msg: `Ligne ${i+1} : langage requis` });
-      });
-      return errors;
-    },
-    // Étape 3 — Licences (vérifier compatibilité)
-    () => {
-      const errors = [];
-      const dataLic = STATE.dataLicense || "CC-BY-4.0";
-      const codeLic = STATE.codeLicense || "MIT";
-      const strongCopyleft = ["GPL-2.0", "GPL-3.0", "AGPL-3.0"];
-      const ncLicenses = ["CC-BY-NC-4.0", "CC-BY-NC-SA-4.0", "CC-BY-NC-ND-4.0"];
-      const restricted = ["restricted"];
-      let incompatData = 0, incompatCode = 0;
-      Object.entries(STATE.reusedSources || {}).forEach(([id, r]) => {
-        if (!r.sourceLicense) return;
-        const isData = r.sourceTable === "data" || r.sourceTable === "data_manual";
-        const srcLic = r.sourceLicense;
-        if (isData) {
-          if (ncLicenses.includes(srcLic) && dataLic === "CC-BY-4.0") incompatData++;
-          else if (restricted.includes(srcLic) && !restricted.includes(dataLic)) incompatData++;
-        } else {
-          if (strongCopyleft.includes(srcLic) && !strongCopyleft.includes(codeLic)) incompatCode++;
-          else if (restricted.includes(srcLic) && !restricted.includes(codeLic)) incompatCode++;
-        }
-      });
-      if (incompatData > 0) errors.push({ id: "compat-warn-data", msg: `Attention : ${incompatData} source(s) réutilisée(s) avec licence incompatible avec ${dataLic}. Vérifiez la compatibilité.` });
-      if (incompatCode > 0) errors.push({ id: "compat-warn-code", msg: `Attention : ${incompatCode} source(s) réutilisée(s) avec licence incompatible avec ${codeLic}. Vérifiez la compatibilité.` });
-      return errors;
-    },
-    // Étape 4 — Résultat (pas de validation)
-    () => [],
-  ];
-
-function validate() {
-  clearAllErrors();
-  const step = getStep();
-  if (step >= STEP_RULES.length) return true;
-  const errors = STEP_RULES[step]();
-  if (!errors.length) return true;
-  errors.forEach(showError);
-  // Scroller vers la première erreur
-  const firstEl = document.getElementById(errors[0].id);
-  if (firstEl) firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
-  return false;
-}
-
-function showError({ id, msg }) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.style.display = "block";
-  el.classList.add("has-error");
-  // Insérer ou mettre à jour le message d'erreur juste après
-  let err = el.parentElement.querySelector(".field-error");
-  if (!err) {
-    err = document.createElement("div");
-    err.className = "field-error";
-    el.insertAdjacentElement("afterend", err);
-  }
-  err.textContent = msg;
-}
-
-function clearError(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.remove("has-error");
-  const err = el.parentElement?.querySelector(".field-error");
-  if (err) err.remove();
-}
-
-function clearAllErrors() {
-  document.querySelectorAll(".has-error").forEach(el => el.classList.remove("has-error"));
-  document.querySelectorAll(".field-error").forEach(el => el.remove());
-  document.querySelectorAll(".license-compat-warning").forEach(el => el.style.display = "none");
-}
-
-// ── Funder info ────────────────────────────────────────────────────────────
-function updateFunderUI(funder) {
-  const ctx = evaluateState({ ...STATE, funder });
-  const f = ctx.funderMeta;
-  if (!f) return;
-  const info = document.getElementById("funder-info");
-  const reqLabel      = getLang() === "fr" ? "Exigences clés"     : "Key requirements";
-  const policyLabel   = getLang() === "fr" ? "Politique open data" : "Open data policy";
-  const deadlineLabel = getLang() === "fr" ? "Délai DMP"          : "DMP deadline";
-
-  // Traductions des contenus
-  const labelT  = t(`funder.${funder}.label`) || f.label;
-  const reqsRaw = t(`funder.${funder}.requirements`) || "";
-  const reqs    = reqsRaw ? reqsRaw.split(";") : f.requirements;
-  const openData = t(`funder.${funder}.openDataPolicy`) || f.openDataPolicy;
-  const deadline = t(`funder.${funder}.dmpDeadline`) || f.dmpDeadline;
-
-  info.innerHTML = `<strong>${labelT}</strong>
-    <ul>${reqs.map(r => `<li>${r}</li>`).join("")}</ul>
-    <strong>${policyLabel}:</strong> ${openData}<br>
-    <strong>${deadlineLabel}:</strong> ${deadline}`;
-  info.style.display = "block";
-}
-
-// Exposer pour appel depuis app.js (updateFunderUI instead of updateFunderInfo)
-window._rdm.updateFunderUI = updateFunderUI;
-
-// ── Textes dynamiques qui dépendent de la langue ─────────────────────────
-function updateDynamicTexts() {
-  if (!getLang()) return;
-  const step = getStep();
-  const topStep = document.getElementById("top-step");
-  if (topStep) {
-    if (step === 0) {
-      topStep.textContent = "🏠 " + t("onboarding.title");
-    } else if (step < 4) {
-      topStep.textContent = t("topbar.step", step, 3);
-    } else {
-      topStep.textContent = t("topbar.result");
-    }
-  }
-  // Sidebar nav items — update ALL data-i18n elements (titles + hints)
-  document.querySelectorAll(".nav-step").forEach((el, i) => {
-    el.querySelectorAll("[data-i18n]").forEach(titleEl => {
-      if (titleEl.dataset.i18n) titleEl.textContent = t(titleEl.dataset.i18n);
-    });
-  });
-  clearAllErrors();
-  updateLicenseWarnings();
-}
-
-// ── Overlay helpers ─────────────────────────────────────────────────────────
-function showOverlay(msgKey, sub) {
-  const o = document.getElementById("loading-overlay");
-  if (o) o.classList.add("show");
-  const msg = document.getElementById("overlay-msg");
-  if (msg && t) msg.textContent = t(msgKey);
-  const subEl = document.getElementById("overlay-sub");
-  if (subEl) subEl.textContent = sub || "";
-}
-function hideOverlay() {
-  const o = document.getElementById("loading-overlay");
-  if (o) o.classList.remove("show");
-}
-
-// ── Résultat ───────────────────────────────────────────────────────────────
-function buildResult() {
-  showOverlay("overlay.generating");
-  const ctx = evaluateState(STATE);
-  const summary = buildSummary(ctx);
-
-  // Summary grid
-  const grid = document.getElementById("summary-grid");
-  const cells = [
-    [t("sum.project"),   summary.project],
-    [t("sum.unit"),      summary.unit],
-    [t("sum.funder"),    summary.funder],
-  ];
-  if (summary.dataCount > 0) {
-    cells.push([t("sum.datasets"),  summary.dataCount + " jeu(x)"]);
-    cells.push([t("sum.datalic"),   summary.dataLicense]);
-  }
-  if (summary.codeCount > 0) {
-    cells.push([t("sum.codes"),     summary.codeCount + " log."]);
-    cells.push([t("sum.codelic"),   summary.codeLicense]);
-  }
-  if (summary.hasSensitive) cells.push([t("sum.sensitive"), t("sum.yes_warn")]);
-  grid.innerHTML = cells.map(([k,v]) =>
-    `<div class="stat-cell"><div class="stat-key">${escapeHtml(k)}</div><div class="stat-val">${escapeHtml(v) || "—"}</div></div>`
-  ).join("");
-
-  // Tree preview — renderFolderTree() remplace buildTreePreview() car il gère l'arborescence interactive
-  renderFolderTree();
-
-  // Naming preview
-  document.getElementById("naming-preview").textContent = T.buildNamingConventions(STATE, ctx, "en");
-
-  // README preview
-  document.getElementById("readme-preview").textContent = T.buildReadme(STATE, ctx, "en");
-
-  // Ressources incluses
-  const resDiv = document.getElementById("resources-preview");
-  if (resDiv) {
-    const typeColors = {
-      PDF:  "background:#FEF0F0;color:#A80013;border:1px solid #FCE4E4",
-      DOCX: "background:#E6F1FB;color:#0C447C;border:1px solid #B5D4F4",
-      ODT:  "background:#E0F0EB;color:#0F6E56;border:1px solid #9FE1CB",
-      MD:   "background:#F1EFE8;color:#444441;border:1px solid #D3D1C7",
-      CSV:  "background:#FDF4E1;color:#633806;border:1px solid #FAC775",
-    };
-    const getType = f => f.split(".").pop().toUpperCase();
-    const row = (label, file) => {
-      const type = getType(file);
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:6px">
-        <span style="font-size:13px;color:var(--ink-2)">${label}</span>
-        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:99px;${typeColors[type]||typeColors.MD}">${type}</span>
-      </div>`;
-    };
-    const section = (title, rows) => rows.length ? `
-      <div style="margin-bottom:1.25rem">
-        <div style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px">${title}</div>
-        ${rows.join("")}
-      </div>` : "";
-
-    const dmpRows    = ctx.activeResources.filter(r => r.file.toLowerCase().startsWith("dmp")).map(r => row(r.label, r.file));
-    const guideRows  = ctx.activeResources.filter(r => !r.file.toLowerCase().startsWith("dmp") && !r.file.toLowerCase().startsWith("rdm_strategy")).map(r => row(r.label, r.file));
-    const stratRows  = ctx.activeResources.filter(r => r.file.toLowerCase().startsWith("rdm_strategy")).map(r => row(r.label, r.file));
-    const checkRows  = [
-      row(t("res.checklist.collection"), "checklist_data_collection.md"),
-      row(t("res.checklist.quality"),    "checklist_data_quality.md"),
-      row(t("res.checklist.archiving"),  "checklist_archiving.md"),
-      ...(Array.isArray(STATE.dataDescription) && STATE.dataDescription.some(d => d.sensitive || d.personal) ? [
-        row(t("res.checklist.ethics"), "checklist_ethics.md"),
-        row(t("res.guide.anon"),       "guide_anonymization.md"),
-      ] : []),
-      row(t("res.dict"),    "data_dictionary_template.csv"),
-      row(t("res.readme"),  "README.md"),
-      row(t("res.naming"),  "NAMING_CONVENTIONS.md"),
-    ];
-
-    resDiv.innerHTML =
-      section(t("res.dmp"),        dmpRows) +
-      section(t("res.guides"),     guideRows) +
-      section(t("res.strategy"),   stratRows) +
-      section(t("res.checks"), checkRows);
-  }
-
-  // DL meta
-  const fileCount = 12 + ctx.dataFolders.length * 2 + ctx.activeResources.length + (STATE.generateNotebook ? 1 : 0) + (STATE.generateGitignore ? 1 : 0);
-  const filesLabel    = getLang() === "fr" ? "fichiers" : "files";
-  const resourceLabel = getLang() === "fr" ? "ressources EPFL" : "EPFL resources";
-  document.getElementById("dl-meta").innerHTML = [
-    `<div class="dl-meta-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h8M4 10h8M4 14h8M2 2h12v14H2z"/></svg>${fileCount}+ ${filesLabel}</div>`,
-    `<div class="dl-meta-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="12" height="12" rx="2"/></svg>DMP Template — ${ctx.funderMeta.label}</div>`,
-    `<div class="dl-meta-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v12M2 8h12"/></svg>${ctx.activeResources.length} ${resourceLabel}</div>`,
-  ].join("");
-
-  nextStep();
-  _maxStep = Math.max(_maxStep, getStep());
-  updateSidebarMax();
-  hideOverlay();
-}
-
-// ── Téléchargement ─────────────────────────────────────────────────────────
-async function triggerDownload() {
-  const btn = document.getElementById("dl-btn");
-  const progressWrap = document.getElementById("progress-dl");
-  const fill = document.getElementById("dl-fill");
-  const label = document.getElementById("dl-label");
-  btn.disabled = true;
-  progressWrap.classList.add("show");
-  showOverlay("overlay.downloading", t("s6.dl.prep"));
-  try {
-    await assembleAndDownload((pct, msg) => {
-      fill.style.width = pct + "%";
-      fill.setAttribute("aria-valuenow", pct);
-      label.textContent = msg;
-    });
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg> ${t("btn.download.again")}`;
-      fill.style.width = "100%";
-      fill.setAttribute("aria-valuenow", 100);
-      label.textContent = t("s6.dl.done");
-    }, 1000);
-  } catch (e) {
-    console.error("[RDM] Download failed:", e);
-    label.textContent = t("s6.dl.error") || "Download error";
-    btn.disabled = false;
-    btn.innerHTML = `<svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg> ${t("btn.download")}`;
-  } finally {
-    hideOverlay();
-  }
-}
-
-// ── Tabs ───────────────────────────────────────────────────────────────────
-function showTab(n) {
-  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("on", i===n));
-  document.querySelectorAll(".tab-panel").forEach((p,i) => p.classList.toggle("on", i===n));
-}
-
-// ── Copy ───────────────────────────────────────────────────────────────────
-function copyEl(id, btn) {
-  const text = document.getElementById(id)?.textContent || "";
-  const doCopy = () => {
-    if (!btn) return;
-    const prev = btn.textContent;
-    btn.textContent = t ? t("btn.copied") : "Copied!";
-    btn.classList.add("copied");
-    setTimeout(() => {
-      btn.textContent = t ? t("btn.copy") : "Copy";
-      btn.classList.remove("copied");
-    }, 1500);
-  };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(doCopy).catch(() => {
-      // fallback execCommand
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      doCopy();
-    });
-  } else {
-    // Fallback pour HTTP
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    doCopy();
-  }
-}
-
-// ── Folder tree customisation (interactive tree with checkboxes) ────────────
-function renderFolderTree() {
-  const container = document.getElementById("tree-preview");
-  if (!container) return;
-  const ctx = evaluateState(STATE);
-  const folders = getDefaultFolders(STATE, ctx);
-  
-  STATE._customFolders = STATE._customFolders || {};
-  
-  // Build tree structure
-  const tree = {};
-  folders.forEach(f => {
-    const parts = f.path.split("/");
-    const root = parts[0];
-    if (!tree[root]) tree[root] = [];
-    tree[root].push(f);
-  });
-  
-  const rootKeys = Object.keys(tree);
-  const p = STATE.projectName || "mon_projet";
-  
-  // Count total items
-  const totalItems = folders.length;
-  const checkedItems = folders.filter(f => {
-    const val = STATE._customFolders[f.path];
-    return val !== undefined ? val : f.active;
-  }).length;
-  
-  let html = `<div class="folder-root">
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-      <input type="checkbox" id="toggle-all" ${checkedItems === totalItems ? "checked" : ""}/>
-      <span>${p}/</span>
-      <span class="folder-count">${checkedItems}/${totalItems}</span>
-    </label>
-  </div>`;
-  
-  rootKeys.forEach((root, i) => {
-    const children = tree[root];
-    const allChecked = children.every(f => {
-      const val = STATE._customFolders[f.path];
-      return val !== undefined ? val : f.active;
-    });
-    const someChecked = children.some(f => {
-      const val = STATE._customFolders[f.path];
-      return val !== undefined ? val : f.active;
-    });
-    const checkedCount = children.filter(f => {
-      const val = STATE._customFolders[f.path];
-      return val !== undefined ? val : f.active;
-    }).length;
-    const isLast = i === rootKeys.length - 1;
-    
-    html += `<div class="folder-tree-line">
-      <span class="tree-char">${isLast ? "└" : "├"}</span>
-      <label class="folder-parent" style="flex:1">
-        <input type="checkbox" data-root="${root}" ${allChecked ? "checked" : ""}/>
-        <span>${root}/</span>
-        <span class="folder-count">${checkedCount}/${children.length}</span>
-      </label>
-    </div>`;
-    
-    if (children.length > 0) {
-      html += `<div class="folder-children">`;
-      children.forEach((f, j) => {
-        const checked = STATE._customFolders[f.path] !== undefined ? STATE._customFolders[f.path] : f.active;
-        const sub = f.path.split("/")[1];
-        html += `<label class="folder-child">
-          <input type="checkbox" data-path="${f.path}" ${checked ? "checked" : ""}/>
-          <span>${sub || f.path}</span>
-        </label>`;
-      });
-      html += `</div>`;
-    }
-  });
-  
-  container.innerHTML = html;
-  
-  // Event: root checkbox
-  container.querySelectorAll("[data-root]").forEach(cb => {
-    cb.addEventListener("change", function() {
-      const root = this.dataset.root;
-      const children = tree[root];
-      children.forEach(f => { STATE._customFolders[f.path] = this.checked; });
-      renderFolderTree();
-    });
-  });
-  
-  // Event: child checkbox
-  container.querySelectorAll("[data-path]").forEach(cb => {
-    cb.addEventListener("change", function() {
-      STATE._customFolders[this.dataset.path] = this.checked;
-      renderFolderTree();
-    });
-  });
-  
-  // Event: toggle all
-  const toggleAll = document.getElementById("toggle-all");
-  if (toggleAll) {
-    toggleAll.addEventListener("change", function() {
-      folders.forEach(f => { STATE._customFolders[f.path] = this.checked; });
-      renderFolderTree();
-    });
-  }
-}
-_rdm.renderFolderTree = renderFolderTree;
-
-// ── Import config ──────────────────────────────────────────────────────────
-function importConfig(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (!data.state) throw new Error("Invalid config file");
-      // Apply state
-      Object.assign(STATE, data.state);
-      // Reset DOM
-      document.getElementById("contributors-body").innerHTML = "";
-      document.getElementById("data-table-body").innerHTML = "";
-      document.getElementById("code-table-body").innerHTML = "";
-      document.getElementById("reused-table-body").innerHTML = "";
-      // Rebuild dynamic tables with proper row count
-      const contribCount = STATE.contributors?.length || 1;
-      for (let i = 0; i < contribCount; i++) addContributorRow();
-      const dataCount = STATE.dataDescription?.length || 1;
-      for (let i = 0; i < dataCount; i++) addDataRow();
-      const codeCount = STATE.codeDescription?.length || 1;
-      for (let i = 0; i < codeCount; i++) addCodeRow();
-      // Populate contributor values from STATE into DOM
-      const contribRows = document.querySelectorAll("#contributors-body tr");
-      contribRows.forEach((tr, i) => {
-        if (STATE.contributors?.[i]) {
-          const c = STATE.contributors[i];
-          const inputs = tr.querySelectorAll("input, select");
-          if (inputs[0]) inputs[0].value = c.lastName || "";
-          if (inputs[1]) inputs[1].value = c.firstName || "";
-          if (inputs[2]) inputs[2].value = c.email || "";
-          if (inputs[3]) inputs[3].value = c.orcid || "";
-          if (inputs[4]) inputs[4].value = c.ror || "";
-          if (inputs[5]) inputs[5].value = c.role || "";
-        }
-      });
-      // Populate data description values from STATE into DOM
-      const dataRows = document.querySelectorAll("#data-table-body tr");
-      dataRows.forEach((tr, i) => {
-        if (STATE.dataDescription?.[i]) {
-          const d = STATE.dataDescription[i];
-          if (tr.querySelector(".dt-id")) tr.querySelector(".dt-id").value = d.identifier || "";
-          if (tr.querySelector(".dt-type")) tr.querySelector(".dt-type").value = d.type || "";
-          if (tr.querySelector(".dt-format")) tr.querySelector(".dt-format").value = d.format || "";
-          if (tr.querySelector(".dt-volume")) tr.querySelector(".dt-volume").value = d.volume || "";
-          if (tr.querySelector(".dt-sensitive")) tr.querySelector(".dt-sensitive").checked = !!d.sensitive;
-          if (tr.querySelector(".dt-personal")) tr.querySelector(".dt-personal").checked = !!d.personal;
-          if (tr.querySelector(".dt-origin")) tr.querySelector(".dt-origin").value = d.origin || "generated";
-        }
-      });
-      // Populate code description values from STATE into DOM
-      const codeRows = document.querySelectorAll("#code-table-body tr");
-      codeRows.forEach((tr, i) => {
-        if (STATE.codeDescription?.[i]) {
-          const c = STATE.codeDescription[i];
-          if (tr.querySelector(".ct-id")) tr.querySelector(".ct-id").value = c.identifier || "";
-          if (tr.querySelector(".ct-lang")) tr.querySelector(".ct-lang").value = c.language || "";
-          if (tr.querySelector(".ct-repo")) tr.querySelector(".ct-repo").value = c.repository || "";
-          if (tr.querySelector(".ct-origin")) tr.querySelector(".ct-origin").value = c.origin || "generated";
-        }
-      });
-      // Sync back from DOM to STATE (ensures consistency)
-      syncContributors();
-      syncDataTable();
-      syncCodeTable();
-      syncReusedTable();
-      updateLicenseSections();
-      // Set form fields that are bound via bindInput/bindRadio/bindSelect
-      if (document.getElementById("proj-name")) document.getElementById("proj-name").value = STATE.projectName || "";
-      if (document.getElementById("proj-unit")) document.getElementById("proj-unit").value = STATE.unit || "";
-      if (document.getElementById("proj-desc")) document.getElementById("proj-desc").value = STATE.projectDescription || "";
-      if (document.getElementById("proj-method")) document.getElementById("proj-method").value = STATE.methodology || "";
-      if (document.getElementById("proj-keywords")) document.getElementById("proj-keywords").value = STATE.keywords || "";
-      if (document.getElementById("proj-grant")) document.getElementById("proj-grant").value = STATE.grantNumber || "";
-      if (document.getElementById("data-license")) document.getElementById("data-license").value = STATE.dataLicense || "CC-BY-4.0";
-      if (document.getElementById("code-license")) document.getElementById("code-license").value = STATE.codeLicense || "MIT";
-      // Set checkboxes
-      if (document.getElementById("cb-multisite")) document.getElementById("cb-multisite").checked = !!STATE.multisite;
-      if (document.getElementById("cb-humandata")) document.getElementById("cb-humandata").checked = !!STATE.humanData;
-      if (document.getElementById("cb-multiteam")) document.getElementById("cb-multiteam").checked = !!STATE.multiTeam;
-      if (document.getElementById("cb-notebook")) document.getElementById("cb-notebook").checked = !!STATE.generateNotebook;
-      if (document.getElementById("cb-gitignore")) document.getElementById("cb-gitignore").checked = !!STATE.generateGitignore;
-      // Set naming pattern radio
-      const namingRadios = document.querySelectorAll("#naming-radios [data-v]");
-      namingRadios.forEach(el => el.classList.toggle("on", el.dataset.v === (STATE.namingPattern || "rdm")));
-      // Set funder
-      if (STATE.funder) {
-        document.querySelectorAll("#funder-radios [data-v]").forEach(el => {
-          el.classList.toggle("on", el.dataset.v === STATE.funder);
-        });
-        updateFunderUI(STATE.funder);
-      }
-      // Update naming preview
-      updateNamingPreview();
-      // Apply language to all translated elements
-      applyLang();
-      // Navigate to step 1
-      goToStep(1);
-      updateSidebarMax();
-      updateDynamicTexts();
-    } catch(err) {
-      alert("Erreur : fichier de configuration invalide.");
-      console.error("[RDM] Import error:", err);
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = "";
-}
-
-// ── Nouveau projet ─────────────────────────────────────────────────────────
-function startNew() {
-  if (!confirm(t("confirm.new"))) return;
-  // Réinitialiser STATE
-  Object.assign(STATE, {
-    projectName: "", unit: "", contributors: [],
-    projectDescription: "", methodology: "", keywords: "",
-    grantNumber: "",
-    multisite: false, humanData: false, multiTeam: false,
-    dataDescription: [],
-    codeDescription: [],
-    namingPattern: "rdm",
-    funder: null, dataLicense: "CC-BY-4.0", codeLicense: "MIT",
-    generateNotebook: false, generateGitignore: false,
-    reusedSources: {},
-  });
-  // Vider les tableaux dynamiques
-  document.getElementById("contributors-body").innerHTML = "";
-  addContributorRow();
-  document.getElementById("data-table-body").innerHTML = "";
-  addDataRow();
-  document.getElementById("code-table-body").innerHTML = "";
-  addCodeRow();
-  document.getElementById("reused-table-body").innerHTML = "";
-  document.getElementById("funder-info").style.display = "none";
-  // Vider tous les champs DOM
-  document.querySelectorAll("input[type=text], input[type=email]").forEach(el => el.value = "");
-  document.querySelectorAll("input[type=checkbox]").forEach(el => el.checked = false);
-  document.querySelectorAll("select").forEach(el => el.selectedIndex = 0);
-  document.querySelectorAll(".chip.on, .radio-card.on, .toggle-btn.on, .funder-card.on").forEach(el => el.classList.remove("on"));
-  // Revenir à l'étape 0 (onboarding)
-  _maxStep = 0;
-  goToStep(0);
-  updateSidebarMax();
-  updateDynamicTexts();
-}
 </script>
 <!-- Loading overlay -->
 <div class="overlay" id="loading-overlay">
